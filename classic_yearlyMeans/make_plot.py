@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+import mpl_toolkits
+from mpl_toolkits.basemap import Basemap
 from matplotlib.ticker import NullFormatter,MultipleLocator, FormatStrFormatter
 import matplotlib.gridspec as gridspec
 
@@ -18,7 +19,7 @@ import numpy as np
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
 
-def plot_map(xr,yr,variable,variable_name,year,time,option,vmin,vmax):
+def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # map all Atlantic and Arctic Ocean
    # colorbar under the map: 
    # Ice thickness, Temperature or Salinity
@@ -49,9 +50,11 @@ def plot_map(xr,yr,variable,variable_name,year,time,option,vmin,vmax):
       cbar.ax.set_xlabel('Temperature ($^{o}$C)')
    elif variable_name=='ML':
       cbar.ax.set_xlabel('Mixed layer depth (m)')
+   elif variable_name=='IceC':
+      cbar.ax.set_xlabel('Ice cover (concentration)')
+   
 
-
-   plt.title(str(year)+','+str(time),size=20)
+   plt.title(str(title),size=20)
    plt.savefig(str(variable_name)+'/'+str(option)+'.png')
    plt.close(fig)
    return

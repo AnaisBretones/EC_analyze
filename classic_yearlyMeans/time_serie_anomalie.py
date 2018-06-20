@@ -17,8 +17,8 @@ import make_plot
 import loading
 
 
-var = 'temp'
-option = 'Uncoupled'
+var = 'sal'
+option = 'Coupled'
 y1 = 1950
 y2 = 2100
 

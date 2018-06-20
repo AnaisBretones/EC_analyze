@@ -44,7 +44,7 @@ class yearly_LongPeriod():                                                      
       self.first_year = 1950                                                            #//
       self.last_year = 2100
       self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/classic_yearlyMeans_'\
-                  +str(option)+'.nc'                                                    #//
+                  +str(option)+'_s.nc'                                                    #//
       self.max_depth = 1000                                                             #//
       if var == 'temp':                                                                 #//
         self.vmin = -5                                                                  #//
@@ -99,8 +99,6 @@ yr, xr, time, depth = loading.extracting_coord(simu.path)
 
 VarArray_simuT = loading.extracting_var(simu.path, 'temp')   # Practical Salinity
 VarArray_simuS = loading.extracting_var(simu.path, 'sal')    # In situ temperature
-VarArray_simuML = loading.extracting_var(simu.path, 'ML')
-
 
 ni = np.size(VarArray_simuT[:,0,0,0])
 nj = np.size(VarArray_simuT[0,:,0,0])
@@ -111,6 +109,11 @@ CT = np.zeros((ni,nj,nz))
 rho_ref = np.zeros((ni,nj,nz))
 ML = np.zeros((ni,nj))
 
+T_s = loading.extracting_var(simu.path, 'temps')
+S_s = loading.extracting_var(simu.path, 'sals')
+SAs = np.zeros((ni,nj))
+CTs = np.zeros((ni,nj))
+rho_s = np.zeros((ni,nj)) 
 
 index_y = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>year))
 
@@ -124,16 +127,20 @@ for i in range(0,ni):
        ML[i,j] = np.nan
     else:
       p = gsw.p_from_z(-depth,yr[i,j])
-      SA[i,j,:] = gsw.SA_from_SP(VarArray_simuS[i,j,:,index_y],p,xr[i,j],yr[i,j]) #VarArray_simuS[i,j,:,0]
-      CT[i,j,:] = gsw.CT_from_t(SA[i,j],VarArray_simuT[i,j,:,index_y],p) #VarArray_simuT[i,j,:,0]
+      SAs[i,j] = gsw.SA_from_SP(S_s[i,j,index_y],0,xr[i,j],yr[i,j])
+      CTs[i,j] = gsw.CT_from_t(SAs[i,j],T_s[i,j,index_y],0)
+      rho_s[i,j] = gsw.rho(SAs[i,j],CTs[i,j],0)
+
+      SA[i,j,:] = gsw.SA_from_SP(VarArray_simuS[i,j,:,index_y],0,xr[i,j],yr[i,j]) #VarArray_simuS[i,j,:,0]
+      CT[i,j,:] = gsw.CT_from_t(SA[i,j],VarArray_simuT[i,j,:,index_y],0) #VarArray_simuT[i,j,:,0]
       #rho_ref[i,j,:] = gsw.rho(VarArray_simuS[i,j,:,index_y],VarArray_simuT[i,j,:,index_y],0) 
       rho_ref[i,j,:] = gsw.rho(SA[i,j,:],CT[i,j,:],0)
-      Array001 = np.where(rho_ref[i,j,:]-rho_ref[i,j,0]>0.01)
+      Array001 = np.where(rho_ref[i,j,:]-rho_s[i,j]>0.01)
       #print(Array001)
       if np.size(Array001) != 0:
         ML[i,j] = depth[np.min(Array001)]
 
-        #print(VarArray_simuML[i,j,index_y],ML[i,j])
+        print(ML[i,j])
       # when MLD deeper than ocean bottom
       else:
         prov = np.where(SA[i,j,:] == 0)
@@ -142,14 +149,13 @@ for i in range(0,ni):
         else:
            ML[i,j] = np.nan
 
-
+print(np.nanmean(rho_ref[:,:,0]-rho_s))
+print(np.mean(VarArray_simuS[:,:,0,:]-S_s))
 # this part shows the problem encountered when computing the mixed layer depth
 # this is done (in particular) by comparing the "easiliy"-computed 0.01MLD with
 # the MLD provided by EC-Earth. I would expect ML to be deeper than VarArray_simuML
 # but it is not the case --> the calculations must be wrong
-VarArray_simuML[np.where(VarArray_simuML ==0.)] = np.nan
 print(np.nanmean(ML))
-print(np.nanmean(VarArray_simuML[:,:,index_y]))
 
 #make_plot.plot_map(xr,yr,ML[:,:],var,year,'mean',simu.output_file,simu.vmin,simu.vmax)
 
