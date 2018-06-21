@@ -54,12 +54,16 @@ def extracting_coord_2D(path):
   nc.close()
   return xr, yr, time
 
-def extracting_coord(path):
+def extracting_coord(path,var):
   nc = Dataset(path)
   xr = Forder(nc.variables['nav_lat'][:])
   yr = Forder(nc.variables['nav_lon'][:])
   time = Forder(nc.variables['time_counter'][:])
-  depth = Forder(nc.variables['deptht'][:])
+  if var == 'v':
+    depth = Forder(nc.variables['depthv'][:])
+  else:
+    depth = Forder(nc.variables['deptht'][:])
+
   nc.close()
   return xr, yr, time, depth
 
