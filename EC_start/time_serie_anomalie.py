@@ -21,6 +21,7 @@ var = 'IceC'
 option = 'Coupled'
 y1 = 1950
 y2 = 2100
+lat_min = 50#66.34 #66.34 polar circle
 
 comparison = 'no'
 y1_compa = 1950
@@ -31,14 +32,14 @@ y2_compa = 2000
 class From1950to2100():									#//
         										#//
   #___________________									#//
-  def __init__(self,option,var,y1,y2,compa):						#//
+  def __init__(self,option,var,y1,y2,compa,lat_min):					#//
      self.max_depth = 1000	                                                        #//
      self.first_year = 1950
      self.y1 = y1 	                                                                #//
      self.y2 = y2									#//
      if compa == 'no':									#//
         self.output_file = str(var)+'_TimeSerie_'+str(self.y1)+'to'\
-                           +str(self.y2)+'_'+str(option)				#//
+                           +str(self.y2)+'_'+str(lat_min)+'_'+str(option)		#//
      elif compa == 'yes':
         self.output_file = str(var)+'_TimeSerieAnomaly_'+str(self.y1)+'to'\
                            +str(self.y2)+'_'+str(option)				#//
@@ -78,11 +79,11 @@ class From1950to2100():									#//
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
-def time_serie_Arctic(path,var):
+def time_serie_Arctic(path,var,lat_min):
 
   yr, xr, time, depth = loading.extracting_coord(path)
   TorS = loading.extracting_var(path, var)
-  Arctic_values = loading.regional_subset(TorS,yr,66.34,90)
+  Arctic_values = loading.regional_subset(TorS,yr,lat_min,90)
   Arctic_values[np.where(Arctic_values ==0.)] = np.nan
   nt = np.size(TorS[0,0,0,:])
   nz = np.size(TorS[0,0,:,0])
@@ -94,10 +95,10 @@ def time_serie_Arctic(path,var):
 
   return time, depth, mean_Arctic
 
-def time_serie_Arctic_2D(path,var):
+def time_serie_Arctic_2D(path,var,lat_min):
   yr, xr, time = loading.extracting_coord_2D(path)
   TorS = loading.extracting_var(path, var)
-  Arctic_values = loading.regional_subset_2D(TorS,yr,66.34,90)
+  Arctic_values = loading.regional_subset_2D(TorS,yr,lat_min,90)
 
   Arctic_values[np.where(Arctic_values ==0.)] = np.nan
 
@@ -112,11 +113,11 @@ def time_serie_Arctic_2D(path,var):
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
-simu = From1950to2100(option,var,y1,y2,comparison) 
+simu = From1950to2100(option,var,y1,y2,comparison,lat_min) 
 if var == 'IceC':
-  time, mean_Arctic_simu = time_serie_Arctic_2D(simu.path,var)
+  time, mean_Arctic_simu = time_serie_Arctic_2D(simu.path,var,lat_min)
 else:
-  time, depth, mean_Arctic_simu = time_serie_Arctic(simu.path,var)
+  time, depth, mean_Arctic_simu = time_serie_Arctic(simu.path,var,lat_min)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
@@ -124,6 +125,7 @@ index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 if comparison == 'no':
    if var == 'IceC':
      print('ok')
+     make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file)
    else:
      make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],\
                        depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax)

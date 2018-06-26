@@ -33,7 +33,7 @@ import loading
  
 # WHAT THE USER CAN CHANGE:--------
 option = 'Coupled'			# Coupled or Uncoupled
-year = 2100				# a year between 1950 and 2100
+year = 2000				# a year between 1950 and 2100
 comparison = 'no'
 #----------------------------------
 
@@ -101,6 +101,7 @@ yr, xr, time, depth = loading.extracting_coord(simu.path)
 
 VarArray_simuT = loading.extracting_var(simu.path, 'temp')   # Practical Salinity
 VarArray_simuS = loading.extracting_var(simu.path, 'sal')    # In situ temperature
+VarArray_simuML = loading.extracting_var(simu.path, 'ML')
 
 ni = np.size(VarArray_simuT[:,0,0,0])
 nj = np.size(VarArray_simuT[0,:,0,0])
@@ -109,6 +110,7 @@ nz = np.size(VarArray_simuT[0,0,:,0])
 SA = np.zeros((ni,nj,nz))
 CT = np.zeros((ni,nj,nz))
 rho_ref = np.zeros((ni,nj,nz))
+ML = np.zeros((ni,nj))
 
 
 index_y = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>year))
@@ -119,6 +121,7 @@ for i in range(0,ni):
   for j in range(0,nj):
     # if we are on the mask (S=0,T=0) 
     if VarArray_simuS[i,j,0,0] == 0 or VarArray_simuT[i,j,0,0] == 0:
+       ML[i,j] = np.nan
        rho_ref[i,j,:] = np.nan
     else:
       p = gsw.p_from_z(-depth,yr[i,j])
@@ -128,28 +131,28 @@ for i in range(0,ni):
       rho_ref[i,j,:] = gsw.rho(SA[i,j,:],CT[i,j,:],0)
       rho_ref[i,j,np.where(rho_ref[i,j,:]<1000)]=np.nan
 
-def vertical_profile(var,variable_name,z,zmax,name_file,option):
+      Array001 = np.where(rho_ref[i,j,:]-rho_ref[i,j,0]>0.01)
 
-   i_zmax = np.max(np.where(z<zmax))
-   fig = plt.figure(figsize=(10,6))
-   plt.rc('text', usetex=True)
-   plt.rc('font', family='serif')
-   plt.plot(var[0:i_zmax+1],z[0:i_zmax+1])
-   plt.gca().invert_yaxis()
-   plt.ylabel(r'Depth (m)')
-   if variable_name == 'temp':
-     plt.xlabel(r'Temperature ($^{o}$C)')
-   elif variable_name == 'density':
-     plt.xlabel(r'Density')
-   plt.xlim([1024.5,1028])
-   plt.ylim([z[i_zmax],0])
-   plt.title(str(option))
-   plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
-   plt.close(fig)
-   return
+      if np.size(Array001) != 0:
+        ML[i,j] = depth[np.min(Array001)]
 
-name_file = 'density_profile_'+str(year)
-vertical_profile(np.nanmean(rho_ref,axis=(0,1)),'density',depth,2000,name_file,'Arctic')
+        #print(VarArray_simuML[i,j,index_y],ML[i,j])
+      # when MLD deeper than ocean bottom
+      else:
+        prov = np.where(SA[i,j,:] == 0)
+        if np.size(prov) != 0:
+           ML[i,j] = depth[np.min(prov[:])]
+        else:
+           ML[i,j] = np.nan
 
+
+# this part shows the problem encountered when computing the mixed layer depth
+# this is done (in particular) by comparing the "easiliy"-computed 0.01MLD with
+# the MLD provided by EC-Earth. I would expect ML to be deeper than VarArray_simuML
+# but it is not the case --> the calculations must be wrong
+VarArray_simuML[np.where(VarArray_simuML ==0.)] = np.nan
+
+print(np.nanmean(ML))
+print(np.nanmean(VarArray_simuML[:,:,index_y]))
 
 

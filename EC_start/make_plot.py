@@ -59,7 +59,7 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    plt.close(fig)
    return
 
-def vertical_profile(var,variable_name,t,z,zmax,year,option):
+def vertical_profile(var,variable_name,z,zmax,name_file,option):
 
    i_zmax = np.max(np.where(z<zmax))
    fig = plt.figure(figsize=(10,6))
@@ -68,9 +68,12 @@ def vertical_profile(var,variable_name,t,z,zmax,year,option):
    plt.plot(var[0:i_zmax+1],z[0:i_zmax+1])
    plt.gca().invert_yaxis()
    plt.ylabel(r'Depth (m)')
-   plt.xlabel(r'Temperature ($^{o}$C)')
-   plt.title('Mean Arctic ($>$66.34$^{o}$N)')
-   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   if variable_name == 'temp':
+     plt.xlabel(r'Temperature ($^{o}$C)')
+   elif variable_name == 'density':
+     plt.xlabel(r'Density')
+   plt.title(str(option)
+   plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
    plt.close(fig)
    return
 
@@ -132,6 +135,20 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.ylabel(r'depth',fontsize=18)
   plt.savefig('plots/'+str(variable_name)+'/Arctic_'+str(variable_name)+'_'+str(year)+'.png')
   plt.close(fig)
+  return
+
+def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile):
+  plt.figure(figsize=(10,6))
+  plt.rc('text', usetex=True)
+  plt.rc('font', family='serif')
+  fig,ax=plt.subplots()
+  t = t/(3600*24*365.)
+  if variable_name == 'IceC':
+     plt.plot(first_year_file+t,var)
+     plt.ylabel('Ice cover',fontsize=18)
+  plt.xlabel('time',fontsize=18)
+  plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
+  plt.savefig(str(variable_name)+'/'+str(name_outfile)+'.png')
   return
 
 
