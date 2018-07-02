@@ -16,7 +16,7 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'IceC'
+var = 'sal'
 option = 'Coupled'
 specificity = ''
 y1 = 2090
@@ -119,6 +119,9 @@ VarArray_simu = loading.extracting_var(simu.path, var)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
+mask = loading.ArcticOcean_mask(VarArray_simu[:,:,:,0],xr,yr)
+machin = VarArray_simu[:,:,0,0]
+
 if comparison == 'no':
    if var == 'ML' or var == 'IceC':
      make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
@@ -130,8 +133,9 @@ elif comparison == 'yes':
    if var == 'ML' or var == 'IceC':
      make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
    else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+     make_plot.points_on_map(xr[mask],yr[mask],var,'Arctic_Ocean')
+     #make_plot.plot_map(xr[mask],yr[mask],machin[mask] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[mask,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[mask,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vma)
 
 
-
-
+          

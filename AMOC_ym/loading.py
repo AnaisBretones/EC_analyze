@@ -90,3 +90,20 @@ def regional_subset(var,yr,lat_min,lat_max):
   print(n)
   return var_region[:,:,0:n-1]
 
+def AtlOcean_mask(salinity,x,y):
+  ni = np.size(salinity[:,0,0])
+  nj = np.size(salinity[0,:,0])
+  nz = np.size(salinity[0,0,:])
+
+  mask = np.zeros_like((salinity))
+  mask[salinity != 0] = 1
+  mask[ np.where(y<66.3),: ] = 0
+
+  mask2 = np.zeros((ni,nj,nz))
+  mask2[ np.where(np.abs(x-(270+105)/2.)<(270-105)/2.),:] = 1
+  mask2[ np.where(y>=66.3),:] = 1
+ 
+  mask = mask * mask2
+
+  return mask
+

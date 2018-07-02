@@ -13,9 +13,9 @@ import os
 import sys
 import numpy as np
 
-import make_plot
+#import make_plot
 import loading
-
+import gsw
 
 var = 'AMOC'
 option = 'Coupled'
@@ -78,24 +78,67 @@ class From1950to2100():									#//
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
-def V_zonal_mean(xr,yr,depth,v):
-   p = gsw.p_from_z(-depth)
-
-   for i in range(0,nx):
-     d = gsw_distance([xr[i],xr[i+1]],[yr[i],yr[i+1]],[p[k],p[k]])
-     if v[i]==0 and v[i+1]==0:
+def V_zonal_mean_one_depth(xr,yr,depth,v):
+   p = gsw.p_from_z(-depth,yr[0])
+   nx = np.size(xr)
+   V = np.zeros((nx))
+   for i in range(0,nx-1):
+    if xr[i]>270 or xr[i]<90:
+     d = gsw.distance([xr[i],xr[i+1]],[yr[i],yr[i+1]],[p,p])
+     if v[i]==0 or v[i+1]==0:
         V[i] = np.nan
-     V[i] = d*(v[i]+v[i+1])/2
-   
+     else:
+        V[i] = d*(v[i]+v[i+1])/2
+    else:
+     V[i] = np.nan
+   return np.nansum(V)
 
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+year = 2000
 
 
 simu = From1950to2100(option,var,y1,y2,comparison) 
 yr, xr, time, depth = loading.extracting_coord(simu.path,'v')
 v = loading.extracting_var(simu.path, 'v')
 
-print(depth)
+mask = loading.AtlOcean_mask(v[:,:,:,0],xr,yr)
+
+index_y = np.min(np.where(1950+time[:]/(3600*24*364.5)>year))
+ny = np.size(yr[0,:])
+nz = np.size(depth)
+VT = np.zeros((nz,ny))
+
+for j in range(0,ny):
+  for k in range(0,nz):
+     VT[k,j] = V_zonal_mean_one_depth(xr[:,j],yr[:,j],depth[k],v[:,j,k,index_y])
+
+def Meridional_section(var,yr,variable_name,z,zmax,year,option,vmin,vmax):
+
+   i_zmax = np.max(np.where(z<zmax))
+
+   plt.figure(figsize=(10,6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+   plt.contourf(yr,z[0:i_zmax+1],var[0:i_zmax+1,:],40)#,vmin=vmin,vmax=vmax)
+   plt.ylim([np.min(z),z[i_zmax]])
+   plt.ylabel(r'Depth (m)')
+   plt.gca().invert_yaxis()
+   # rotate and align the tick labels so they look better
+   fig.autofmt_xdate()
+   #plt.xticks(tick_locs,tick_lbls)
+   cbar = plt.colorbar()
+   cbar.ax.get_yaxis().labelpad = 15
+   cbar.set_label(r'Meridional transport',fontsize=18)
+   plt.title('')
+   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   plt.close(fig)
+   return
+
+name_outfile = 'MT'
+vmin = 50
+vmax = 30
+Meridional_section(VT,yr[0,:],'MT',depth,2000,year,name_outfile,vmin,vmax)
 
 '''
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))

@@ -43,6 +43,8 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['sosaline'][:])
   elif variable_name =='IceC':
     var = Forder(nc.variables['soicecov'][:])
+  elif variable_name =='rho':
+    var = Forder(nc.variables['vosigma0'][:])
   nc.close()
   return var
 
@@ -71,29 +73,19 @@ def extracting_coord_only(path):
   return xr, yr
 
 
-def regional_subset(var,yr,lat_min,lat_max,coverage):
-  if coverage =='3D':
-   ni = np.size(var[:,0,0,0])
-   nj = np.size(var[0,:,0,0])
-   nt = np.size(var[0,0,0,:])
-   nz = np.size(var[0,0,:,0])
-   var_region = np.zeros((nz,nt,ni*nj))
-  elif coverage == '2D':
-   ni = np.size(var[:,0,0])
-   nj = np.size(var[0,:,0])
-   nt = np.size(var[0,0,:])
-   var_region = np.zeros((nt,ni*nj))
+def regional_subset(var,yr,lat_min,lat_max):
+  ni = np.size(var[:,0,0,0])
+  nj = np.size(var[0,:,0,0])
+  nt = np.size(var[0,0,0,:])
+  nz = np.size(var[0,0,:,0])
+  var_region = np.zeros((nz,nt,ni*nj))
 
   n=0
   for j in range(0,nj):
     for i in range(0,ni):
        if yr[i,j]>lat_min and yr[i,j]<lat_max:
-          if coverage == '3D':
-           var_region[:,:,n] = var[i,j,:,:]
-          elif coverage == '2D':
-           var_region[:,n] = var[i,j,:]
+          var_region[:,:,n] = var[i,j,:,:]
           n = n+1
-  print(n)
   return var_region[:,:,0:n-1]
 
 def regional_subset_2D(var,yr,lat_min,lat_max):
@@ -110,4 +102,18 @@ def regional_subset_2D(var,yr,lat_min,lat_max):
           n = n+1
   
   return var_region[:,0:n-1]
+
+# ._._._._._._._._._._._._._._._._._._._._._._._._._._._.
+
+def latitudinal_band_mask(y,lat_min,lat_max):
+  mask = ((y>lat_min) & (y<lat_max))
+  return mask
+
+def land_mask(salinity):
+  mask = salinity != 0
+  return mask
+
+def ArcticOcean_mask(x,y):
+  mask = (y>81) | ((y>66.3) & ((x>105)|(x<-90) )) 
+  return mask
 

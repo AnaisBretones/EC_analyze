@@ -19,6 +19,33 @@ import numpy as np
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
 
+def points_on_map(xr,yr,variable_name,ocean):
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+   m.drawparallels(np.linspace(0, 90, 10))
+   m.drawmeridians(np.linspace(-180, 180, 10))
+   # Add Colorbar
+   cs = m.scatter(x,y,marker='o', color='r',s=1)
+
+
+   plt.title(str(ocean.replace("_"," ")),size=20)
+   plt.savefig(str(variable_name)+'/domain_'+str(ocean)+'.png')
+   plt.close(fig)
+   return
+
+
+
 def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # map all Atlantic and Arctic Ocean
    # colorbar under the map: 
@@ -72,13 +99,13 @@ def vertical_profile(var,variable_name,z,zmax,name_file,option):
      plt.xlabel(r'Temperature ($^{o}$C)')
    elif variable_name == 'density':
      plt.xlabel(r'Density')
-   plt.title(str(option)
+   plt.title(str(option))
    plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
    plt.close(fig)
    return
 
 
-def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax):
+def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
 
    i_zmax = np.max(np.where(z<zmax))
 
@@ -102,7 +129,12 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax):
     cbar.set_label(r'Temperature ($^{o}$C)',fontsize=18)
    elif variable_name == 'sal':
     cbar.set_label(r'Salinity (PSU)',fontsize=18)
-   plt.title('Mean Arctic ($>$66.34$^{o}$N)')
+
+   if ocean == 'undefined':
+      plt.title('Mean Arctic ($>$66.34$^{o}$N)')
+   else:
+      plt.title(str(ocean.replace("_"," ")),size=20)
+
    plt.savefig(str(variable_name)+'/'+str(option)+'.png')
    plt.close(fig)
    return
@@ -137,17 +169,22 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.close(fig)
   return
 
-def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile):
+def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
+  plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
+  plt.ylim([0.2,0.95])
   if variable_name == 'IceC':
      plt.plot(first_year_file+t,var)
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
-  plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
+  if ocean == 'undefined':
+      plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
+  else:
+      plt.title(str(ocean.replace("_"," ")),size=20)
   plt.savefig(str(variable_name)+'/'+str(name_outfile)+'.png')
   return
 

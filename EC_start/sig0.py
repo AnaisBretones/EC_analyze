@@ -5,7 +5,6 @@ from matplotlib.ticker import NullFormatter,MultipleLocator, FormatStrFormatter
 import matplotlib.gridspec as gridspec
 import scipy
 import netCDF4
-import gsw 
 
 from pylab import *
 from netCDF4 import Dataset
@@ -44,7 +43,7 @@ class yearly_LongPeriod():                                                      
   def __init__(self, option, var):                                                      #//
       self.first_year = 1950                                                            #//
       self.last_year = 2100
-      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'\
+      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/sig0_'\
                   +str(option)+'.nc'                                                    #//
       self.max_depth = 1000                                                             #//
       if var == 'temp':                                                                 #//
@@ -62,33 +61,6 @@ class yearly_LongPeriod():                                                      
                                                                                         #//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
-#//////////////////////////////////////////////////////////////////////////////////////////
-class yearlyAnomaly_LongPeriod():                                                       #//
-                                                                                        #//
-  #_____________________________________                                                #//
-  def __init__(self, option, var):                                                      #//
-      self.first_year = 1950                                                            #//
-      self.last_year = 2100
-      self.path_ref = '../'+str(var)+'TimeMean_'+str(option)+'.nc'                      #//
-      self.path = '../'+str(var)+'_from'+str(self.first_year)+'to'\
-                  +str(self.last_year)+'_'+str(option)+'.nc'                            #//
-      self.max_depth = 1000                                                             #//
-      if var == 'temp':                                                                 #//
-        self.vmin = -5                                                                  #//
-        self.vmax = 10                                                                  #//
-      elif var == 'sal':                                                                #//
-        self.vmin = 31.92                                                               #//
-        self.vmax = 34.86                                                               #//
-      elif var == 'ML':
-        self.vmin = 0
-        self.vmax = 300
-      self.output_file = str(var)+'_ymeans_'+str(option)                                #//
-                                                                                        #//
-      return                                                                            #//
-                                                                                        #//
-#//////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
 if comparison == 'no':
@@ -99,34 +71,11 @@ elif comparison == 'yes':
 
 yr, xr, time, depth = loading.extracting_coord(simu.path)
 
-VarArray_simuT = loading.extracting_var(simu.path, 'temp')   # Practical Salinity
-VarArray_simuS = loading.extracting_var(simu.path, 'sal')    # In situ temperature
-
-ni = np.size(VarArray_simuT[:,0,0,0])
-nj = np.size(VarArray_simuT[0,:,0,0])
-nz = np.size(VarArray_simuT[0,0,:,0])
-
-SA = np.zeros((ni,nj,nz))
-CT = np.zeros((ni,nj,nz))
-rho_ref = np.zeros((ni,nj,nz))
-
+VarArray_simuRho = loading.extracting_var(simu.path, 'rho')   # Practical Salinity
 
 index_y = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>year))
 
 
-k=0
-for i in range(0,ni):
-  for j in range(0,nj):
-    # if we are on the mask (S=0,T=0) 
-    if VarArray_simuS[i,j,0,0] == 0 or VarArray_simuT[i,j,0,0] == 0:
-       rho_ref[i,j,:] = np.nan
-    else:
-      p = gsw.p_from_z(-depth,yr[i,j])
-      SA[i,j,:] = gsw.SA_from_SP(VarArray_simuS[i,j,:,index_y],p,xr[i,j],yr[i,j]) #VarArray_simuS[i,j,:,0]
-      CT[i,j,:] = VarArray_simuT[i,j,:,index_y] #gsw.CT_from_t(SA[i,j],VarArray_simuT[i,j,:,index_y],p) #VarArray_simuT[i,j,:,0]
-      #rho_ref[i,j,:] = gsw.rho(VarArray_simuS[i,j,:,index_y],VarArray_simuT[i,j,:,index_y],0) 
-      rho_ref[i,j,:] = gsw.rho(SA[i,j,:],CT[i,j,:],0)
-      rho_ref[i,j,np.where(rho_ref[i,j,:]<1000)]=np.nan
 
 def vertical_profile(var,variable_name,z,zmax,name_file,option):
 
@@ -141,15 +90,17 @@ def vertical_profile(var,variable_name,z,zmax,name_file,option):
      plt.xlabel(r'Temperature ($^{o}$C)')
    elif variable_name == 'density':
      plt.xlabel(r'Density')
-   plt.xlim([1024.5,1028])
+   plt.xlim([24.5,28])
    plt.ylim([z[i_zmax],0])
    plt.title(str(option))
    plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
    plt.close(fig)
    return
 
-name_file = 'density_profile_changeS'+str(year)
-vertical_profile(np.nanmean(rho_ref,axis=(0,1)),'density',depth,2000,name_file,'Arctic')
+name_file = 'density_profile0_'+str(year)
+
+VarArray_simuRho[np.where(VarArray_simuRho==0)] = np.nan
+vertical_profile(np.nanmean(VarArray_simuRho[:,:,:,index_y],axis=(0,1)),'density',depth,2000,name_file,'Arctic')
 
 
 
