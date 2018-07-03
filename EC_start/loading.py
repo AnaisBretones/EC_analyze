@@ -113,7 +113,13 @@ def land_mask(salinity):
   mask = salinity != 0
   return mask
 
-def ArcticOcean_mask(x,y):
-  mask = (y>81) | ((y>66.3) & ((x>105)|(x<-90) )) 
+def Ocean_mask(x,y,basin):
+  if basin == 'arctic_ocean':
+     mask = (y>81) | ((y>66.3) & ((x>105)|(x<-90) )) 
+  elif basin == 'BS_and_KS':
+     mask = ((y<80)&(y>68)&(x<105)&(x>20))
+  elif basin == 'greenland_sea':
+     mask = ( (y<80) & (((y>65)&(x>-25)&(x<-15)) | ((y>76)&(x>0)&(x<20)) | ((x>-15)&(x<0)&(y>76+11*x/15.))))
+
   return mask
 

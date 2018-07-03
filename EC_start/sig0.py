@@ -14,7 +14,7 @@ import os
 import sys
 import numpy as np
 
-#import make_plot
+import make_plot
 import loading
 
 
@@ -32,30 +32,44 @@ import loading
  
 # WHAT THE USER CAN CHANGE:--------
 option = 'Coupled'			# Coupled or Uncoupled
-year = 2100				# a year between 1950 and 2100
+y1 = 2000				# a year between 1950 and 2100
+y2 = 2100
+var = 'density'
+
 comparison = 'no'
+
+basin ='undefined'          # arctic_ocean, BS_and_KS, greenland_sea, undefined
+lat_min = 66.34                 #IF basin = 'undefined'
+                                #ex: 66.34 for polar circle
+
 #----------------------------------
 
 #//////////////////////////////////////////////////////////////////////////////////////////
 class yearly_LongPeriod():                                                               #//
                                                                                         #//
   #_____________________________________                                                #//
-  def __init__(self, option, var):                                                      #//
+  def __init__(self, option, var,y1,basin,lat_min):                                                      #//
       self.first_year = 1950                                                            #//
       self.last_year = 2100
       self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/sig0_'\
                   +str(option)+'.nc'                                                    #//
-      self.max_depth = 1000                                                             #//
+      if basin == 'undefined':                                                           #//
+        sufix = str(lat_min)+'_'+str(option)
+      else:
+        sufix = str(basin)+'_'+str(option)
+
+      self.y1 = y1
+      self.max_depth = 2000                                                             #//
       if var == 'temp':                                                                 #//
         self.vmin = -5                                                                  #//
         self.vmax = 10                                                                  #//
       elif var == 'sal':                                                                #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86                                                               #//
-      elif var == 'ML':
-        self.vmin = 0
-        self.vmax = 300
-      self.output_file = str(var)+'_ymeans_'+str(option)                                #//
+      elif var == 'density':
+        self.vmin = 25
+        self.vmax = 28.1
+      self.output_file =  str(var)+'_yearmean'+str(self.y1)+'_'+str(sufix)
                                                                                         #//
       return                                                                            #//
                                                                                         #//
@@ -64,43 +78,33 @@ class yearly_LongPeriod():                                                      
 
 
 if comparison == 'no':
-   simu = yearly_LongPeriod(option,'ML')
-elif comparison == 'yes':
-   simu = yearlyAnomaly_LongPeriod(option,var)
-   VarArray_ref = loading.extracting_var(simu.path_ref, var)
+   simu = yearly_LongPeriod(option,var,y1,basin,lat_min)
+#elif comparison == 'yes':
+#   simu = yearlyAnomaly_LongPeriod(option,var)
+#   VarArray_ref = loading.extracting_var(simu.path_ref, var)
 
 yr, xr, time, depth = loading.extracting_coord(simu.path)
 
 VarArray_simuRho = loading.extracting_var(simu.path, 'rho')   # Practical Salinity
+index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
+index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y2))
 
-index_y = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>year))
 
 
+if basin =='undefined':
+   mask = loading.latitudinal_band_mask(yr,lat_min,90)
+else:
+   mask = loading.Ocean_mask(xr,yr,basin)
+   make_plot.points_on_map(xr[mask],yr[mask],var,basin)
 
-def vertical_profile(var,variable_name,z,zmax,name_file,option):
-
-   i_zmax = np.max(np.where(z<zmax))
-   fig = plt.figure(figsize=(10,6))
-   plt.rc('text', usetex=True)
-   plt.rc('font', family='serif')
-   plt.plot(var[0:i_zmax+1],z[0:i_zmax+1])
-   plt.gca().invert_yaxis()
-   plt.ylabel(r'Depth (m)')
-   if variable_name == 'temp':
-     plt.xlabel(r'Temperature ($^{o}$C)')
-   elif variable_name == 'density':
-     plt.xlabel(r'Density')
-   plt.xlim([24.5,28])
-   plt.ylim([z[i_zmax],0])
-   plt.title(str(option))
-   plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
-   plt.close(fig)
-   return
-
-name_file = 'density_profile0_'+str(year)
 
 VarArray_simuRho[np.where(VarArray_simuRho==0)] = np.nan
-vertical_profile(np.nanmean(VarArray_simuRho[:,:,:,index_y],axis=(0,1)),'density',depth,2000,name_file,'Arctic')
+region = VarArray_simuRho[mask,:,:]
+print(np.shape(region))
+mean_region = np.nanmean(region,axis=0)
+
+
+make_plot.vertical_profile(mean_region[:,index_y1],mean_region[:,index_y2],var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file)
 
 
 

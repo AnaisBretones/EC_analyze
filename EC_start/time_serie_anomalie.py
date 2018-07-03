@@ -17,16 +17,16 @@ import make_plot
 import loading
 
 
-var = 'IceC'			# sal, temp, IceC, ML
+var = 'temp'			# sal, temp, IceC, ML
 option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='undefined'		# arctic_ocean, undefined
+basin ='greenland_sea'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
-comparison = 'no'
+comparison = 'yes'
 y1_compa = 1950
 y2_compa = 2000
 
@@ -96,11 +96,11 @@ def time_serie_Arctic(path,var,lat_min,basin):
   S = loading.extracting_var(path,'sal')
   TorS[np.where( S==0. )] = np.nan
 
-  if basin =='arctic_ocean':
-     mask = loading.ArcticOcean_mask(xr,yr)
-     make_plot.points_on_map(xr[mask],yr[mask],var,basin)
-  elif basin =='undefined':
+  if basin =='undefined':
      mask = loading.latitudinal_band_mask(yr,lat_min,90)
+  else:
+     mask = loading.Ocean_mask(xr,yr,basin)
+     make_plot.points_on_map(xr[mask],yr[mask],var,basin)
 
   arctic = TorS[mask,:,:]
 
