@@ -22,7 +22,7 @@ option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='BS_and_KS'		# arctic_ocean, BS_and_KS, undefined
+basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -49,9 +49,9 @@ class From1950to2100():									#//
         sufix = str(self.y1)+'to'+str(self.y2)+'_'+str(basin)+'_'+str(option)
 
      if compa == 'no':									#//
-        self.output_file = str(var)+'_TimeSerie_'+str(sufix)
+        self.output_file = str(var)+'Sept_TimeSerie_'+str(sufix)
      elif compa == 'yes':
-        self.output_file = str(var)+'_TimeSerieAnomaly_'+str(sufix)
+        self.output_file = str(var)+'Sept_TimeSerieAnomaly_'+str(sufix)
 
      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc' 
 
@@ -64,27 +64,15 @@ class From1950to2100():									#//
         self.vmax = 0.15	                                                        #//
 
      elif compa =='no':
-      if y2<2010:
        if var == 'temp':                                                                #//
         self.vmin = -1.23                                                               #//
         self.vmax = -0.04                                                               #//
        elif var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86	                                                        #//
-      elif y1>1999:
-       if var == 'temp':                                                                #//
-        self.vmin = -0.9                                                                #//
-        self.vmax = 2.8                                                                 #//
-       elif var == 'sal':                                                               #//
-        self.vmin = 31.92                                                               #//
-        self.vmax = 34.86	                                                        #//
-      else:
-       if var == 'temp':                                                                #//
-        self.vmin = -1.2                                                                #//
-        self.vmax = 2.5                                                                 #//
-       elif var == 'sal':                                                               #//
-        self.vmin = 31.92                                                               #//
-        self.vmax = 34.86	                                                        #//
+       elif var == 'IceC':                                                                #//
+        self.vmin = 0.                                                               #//
+        self.vmax = 0.95                                                                 #//
 
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -142,8 +130,14 @@ index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 # JUST ONE TIME SERIE PLOT
 if comparison == 'no':
    if var == 'IceC':
-     print('ok')
-     make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file,basin)
+
+     mean_5y = np.zeros(((index_y2-index_y1)/5))
+     t_5y = np.zeros_like((mean_5y))
+     print(np.size(mean_Arctic_simu[index_y1:index_y1+5]))
+     for t in range(0,np.size(mean_5y)):
+       mean_5y[t] = np.mean(mean_Arctic_simu[index_y1+5*t:index_y1+5*(t+1)])
+       t_5y[t] = np.mean(time[index_y1+5*t:index_y1+5*(t+1)])
+     make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],mean_5y,t_5y,simu.first_year, lat_min,simu.output_file,simu.vmin,simu.vmax,basin)
    else:
      make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],\
                        depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin)

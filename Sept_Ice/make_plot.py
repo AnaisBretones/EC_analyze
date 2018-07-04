@@ -177,16 +177,18 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.close(fig)
   return
 
-def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
+def var_fc_time(var,variable_name,t,var2,t2,first_year_file,lat_min,name_outfile,vmin,vmax,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
+  t2 = t2/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  plt.ylim([0.,0.75])
+  plt.ylim([vmin,vmax])
   if variable_name == 'IceC':
      plt.plot(first_year_file+t,var)
+     plt.plot(first_year_file+t2,var2)
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':

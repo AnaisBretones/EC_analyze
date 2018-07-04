@@ -16,7 +16,7 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'ML'
+var = 'IceC'
 option = 'Coupled'
 specificity = ''
 y1 = 2090
@@ -43,7 +43,7 @@ class From1950to2100():                                                         
      elif compa == 'yes':
         self.output_file = str(var)+'_map_'+str(self.y1)+'to'\
                            +str(self.y2)+'AnoTo90s_'+str(option)                                #//
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc'
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Sept_Ice_'+str(option)+'.nc'
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
