@@ -82,7 +82,7 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    
 
    plt.title(str(title),size=20)
-   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".","")))+'.png')
    plt.close(fig)
    return
 
@@ -107,7 +107,7 @@ def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
    else:
       plt.title(str(ocean.replace("_"," ")))
-   plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".","")))+'.png')
    plt.close(fig)
    return
 
@@ -143,7 +143,7 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    else:
       plt.title(str(ocean.replace("_"," ")),size=20)
 
-   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".","")))+'.png')
    plt.close(fig)
    return
 
@@ -193,7 +193,7 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
   else:
       plt.title(str(ocean.replace("_"," ")),size=20)
-  plt.savefig(str(variable_name)+'/'+str(name_outfile)+'.png')
+  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".","")))+'.png')
   return
 
 

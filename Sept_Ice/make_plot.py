@@ -82,18 +82,19 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    
 
    plt.title(str(title),size=20)
-   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
    plt.close(fig)
    return
 
-def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
+def vertical_profile(var1,var2,y1,y2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
 
    i_zmax = np.max(np.where(z<zmax))
-   fig = plt.figure(figsize=(10,6))
+   plt.figure(figsize=(7,15))
+   fig,ax = plt.subplots()
    plt.rc('text', usetex=True)
    plt.rc('font', family='serif')
-   plt.plot(var1[0:i_zmax+1],z[0:i_zmax+1])
-   plt.plot(var2[0:i_zmax+1],z[0:i_zmax+1])
+   ax.plot(var1[0:i_zmax+1],z[0:i_zmax+1],label=str(y1))
+   ax.plot(var2[0:i_zmax+1],z[0:i_zmax+1],label=str(y2))
    plt.gca().invert_yaxis()
    plt.ylabel(r'Depth (m)')
    if variable_name == 'temp':
@@ -107,7 +108,13 @@ def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
    else:
       plt.title(str(ocean.replace("_"," ")))
-   plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
+   box = ax.get_position()
+   ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                 box.width, box.height * 0.7])
+   h, l = ax.get_legend_handles_labels()
+   ax.legend(h, l,  bbox_to_anchor=(-.5,-.05, 2,-0.15), loc=9,
+           ncol=1)
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
    plt.close(fig)
    return
 
@@ -143,7 +150,7 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    else:
       plt.title(str(ocean.replace("_"," ")),size=20)
 
-   plt.savefig(str(variable_name)+'/'+str(option)+'.png')
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
    plt.close(fig)
    return
 
@@ -177,25 +184,23 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.close(fig)
   return
 
-def var_fc_time(var,variable_name,t,var2,t2,first_year_file,lat_min,name_outfile,vmin,vmax,ocean):
+def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
-  t2 = t2/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  plt.ylim([vmin,vmax])
+  plt.ylim([0.,0.75])
   if variable_name == 'IceC':
      plt.plot(first_year_file+t,var)
-     plt.plot(first_year_file+t2,var2)
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
   else:
       plt.title(str(ocean.replace("_"," ")),size=20)
-  plt.savefig(str(variable_name)+'/'+str(name_outfile)+'.png')
+  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
   return
 
 

@@ -31,10 +31,11 @@ import loading
 #        when the script does not find the MLD, it is set to zero.
  
 # WHAT THE USER CAN CHANGE:--------
-option = 'Coupled'			# Coupled or Uncoupled
+option = 'Uncoupled'			# Coupled or Uncoupled
 y1 = 2000				# a year between 1950 and 2100
 y2 = 2100
 var = 'density'
+month = 'Sept'				# Sept or April
 
 comparison = 'no'
 
@@ -48,11 +49,11 @@ lat_min = 66.34                 #IF basin = 'undefined'
 class yearly_LongPeriod():                                                               #//
                                                                                         #//
   #_____________________________________                                                #//
-  def __init__(self, option, var,y1,basin,lat_min):                                                      #//
+  def __init__(self, option, var,y1,basin,lat_min,month):                                                      #//
       self.first_year = 1950                                                            #//
       self.last_year = 2100
       self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/sig0_'\
-                  +str(option)+'.nc'                                                    #//
+                  +str(month)+'_'+str(option)+'.nc'                                                    #//
       if basin == 'undefined':                                                           #//
         sufix = str(lat_min)+'_'+str(option)
       else:
@@ -69,7 +70,7 @@ class yearly_LongPeriod():                                                      
       elif var == 'density':
         self.vmin = 25
         self.vmax = 28.1
-      self.output_file =  str(var)+'_yearmean'+str(self.y1)+'_'+str(sufix)
+      self.output_file =  str(var)+'_'+str(month)+str(self.y1)+'_'+str(sufix)
                                                                                         #//
       return                                                                            #//
                                                                                         #//
@@ -78,10 +79,7 @@ class yearly_LongPeriod():                                                      
 
 
 if comparison == 'no':
-   simu = yearly_LongPeriod(option,var,y1,basin,lat_min)
-#elif comparison == 'yes':
-#   simu = yearlyAnomaly_LongPeriod(option,var)
-#   VarArray_ref = loading.extracting_var(simu.path_ref, var)
+   simu = yearly_LongPeriod(option,var,y1,basin,lat_min,month)
 
 yr, xr, time, depth = loading.extracting_coord(simu.path)
 
@@ -104,7 +102,7 @@ print(np.shape(region))
 mean_region = np.nanmean(region,axis=0)
 
 
-make_plot.vertical_profile(mean_region[:,index_y1],mean_region[:,index_y2],var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file)
+make_plot.vertical_profile(mean_region[:,index_y1],mean_region[:,index_y2],y1,y2,var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file)
 
 
 
