@@ -184,9 +184,9 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  plt.ylim([0.,0.75])
+  #plt.ylim([0.,0.75])
+  plt.plot(first_year_file+t,var)
   if variable_name == 'IceC':
-     plt.plot(first_year_file+t,var)
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':

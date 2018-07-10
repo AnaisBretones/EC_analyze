@@ -18,11 +18,11 @@ import loading
 
 
 var = 'IceC'			# sal, temp, IceC, ML
-option = 'Coupled'		# Coupled, Uncoupled
-y1 = 2000
-y2 = 2100
-month = 'april'                  #Sept or April
-basin ='undefined'		# arctic_ocean, BS_and_KS, undefined
+option = 'Uncoupled'		# Coupled, Uncoupled
+y1 = 2040
+y2 = 2060
+month = 'Sept'                  #Sept or April
+basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -30,8 +30,8 @@ comparison = 'no'
 y1_compa = 1950
 y2_compa = 2000
 
-if var == 'IceC':
-   y1 = 1950
+#if var == 'IceC':
+#{   y1 = 1950
 
 
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ print(np.max(ice_extent))
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
-var_fc_time(ice_extent,var,time,simu.first_year,lat_min,simu.output_file,basin)
+var_fc_time(ice_extent[index_y1:index_y2+1],var,time[index_y1:index_y2+1],simu.first_year,lat_min,simu.output_file,basin)
 # JUST ONE TIME SERIE PLOT
 print(ice_extent[-13])
 print(time[-13]/(3600*24*364.5))
