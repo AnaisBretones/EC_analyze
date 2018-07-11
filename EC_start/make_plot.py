@@ -113,7 +113,7 @@ def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name
 
 
 
-def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
+def time_serie(var,variable_name,t,ML,z,zmax,year,option,vmin,vmax,ocean):
 
    i_zmax = np.max(np.where(z<zmax))
 
@@ -125,6 +125,8 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
       plt.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)
    elif variable_name == 'sal':
       plt.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   plt.plot(year+t/(24*3600*365.),ML)
+
    plt.ylim([np.min(z),z[i_zmax]])
    plt.ylabel(r'Depth (m)')
    plt.gca().invert_yaxis()
@@ -147,35 +149,6 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    plt.close(fig)
    return
 
-def time_serie_one_year(var,variable_name,z,t,year):
-  plt.figure(figsize=(10,6))
-  plt.rc('text', usetex=True)
-  plt.rc('font', family='serif')
-  fig,ax=plt.subplots()
-  t = t/(3600*24*365.)
-  if variable_name == 'temp':
-     plt.pcolor(t,z,var,vmin=vmin,vmax=vmax,cmap='RdBu')#,vmin=np.min(var),vmax=np.max(var))
-  elif variable_name == 'sal':
-     plt.pcolormesh(t,z,var,vmin=33.66,vmax=34.50)#,cmap='YlGnBu')
-
-  plt.ylim([np.min(z),600])
-  plt.xlim([t[0],t[-1]])
-  tick_locs = [t[1],t[3],t[5],t[7]]
-  tick_lbls = ['feb','ap','jun','aug']
-  plt.xticks(tick_locs,tick_lbls)
-  plt.gca().invert_yaxis()
-
-  cbar = plt.colorbar()
-  if variable_name == 'temp':
-    cbar.set_label(r'Temperature ($^{o}$C)',fontsize=18)
-  elif variable_name == 'sal':
-    cbar.set_label(r'Salinity (PSU)',fontsize=18)
-  plt.title('Mean Arctic',fontsize=20)
-  plt.xlabel(r'time',fontsize=18)
-  plt.ylabel(r'depth',fontsize=18)
-  plt.savefig('plots/'+str(variable_name)+'/Arctic_'+str(variable_name)+'_'+str(year)+'.png')
-  plt.close(fig)
-  return
 
 def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))

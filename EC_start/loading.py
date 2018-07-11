@@ -120,6 +120,9 @@ def Ocean_mask(x,y,basin):
      mask = ((y<80)&(y>68)&(x<105)&(x>20))
   elif basin == 'greenland_sea':
      mask = ( (y<80) & (((y>65)&(x>-25)&(x<-15)) | ((y>76)&(x>0)&(x<20)) | ((x>-15)&(x<0)&(y>76+11*x/15.))))
+  elif basin == 'section_ESS':
+     mask = ((x>140) & (x<150) & (y>75) & (y<80))
+
 
   return mask
 

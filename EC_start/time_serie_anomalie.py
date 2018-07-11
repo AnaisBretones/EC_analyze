@@ -17,16 +17,16 @@ import make_plot
 import loading
 
 
-var = 'IceC'			# sal, temp, IceC, ML
+var = 'temp'			# sal, temp, IceC, ML
 option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='BS_and_KS'		# arctic_ocean, BS_and_KS, undefined
+basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
-comparison = 'no'
+comparison = 'yes'
 y1_compa = 1950
 y2_compa = 2000
 
@@ -132,9 +132,10 @@ def time_serie_Arctic_2D(path,var,lat_min,basin):
 
 simu = From1950to2100(option,var,y1,y2,comparison,lat_min,basin) 
 if var == 'IceC':
-  time, mean_Arctic_simu = time_serie_Arctic_2D(simu.path,var,lat_min,basin)
+  time, mean_region_simu = time_serie_Arctic_2D(simu.path,var,lat_min,basin)
 else:
-  time, depth, mean_Arctic_simu = time_serie_Arctic(simu.path,var,lat_min,basin)
+  time, depth, mean_region_simu = time_serie_Arctic(simu.path,var,lat_min,basin)
+  time, ML = time_serie_Arctic_2D(simu.path,'ML',lat_min,basin)
 
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
@@ -143,16 +144,16 @@ index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 if comparison == 'no':
    if var == 'IceC':
      print('ok')
-     make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file,basin)
+     make_plot.var_fc_time(mean_region_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file,basin)
    else:
-     make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],\
+     make_plot.time_serie(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],ML[index_y1:index_y2],\
                        depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin)
 else:
    index_y1c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y1_compa))
    index_y2c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y2_compa))
-   np.shape(mean_Arctic_simu[:,index_y1c:index_y2c])
-   ref = np.reshape( np.mean(mean_Arctic_simu[:,index_y1c:index_y2c],axis=1) ,[42,1])
-   make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2]- ref,var,\
-                       time[index_y1:index_y2],depth,simu.max_depth,simu.first_year,\
+   np.shape(mean_region_simu[:,index_y1c:index_y2c])
+   ref = np.reshape( np.mean(mean_region_simu[:,index_y1c:index_y2c],axis=1) ,[42,1])
+   make_plot.time_serie(mean_region_simu[:,index_y1:index_y2]- ref,var,\
+                       time[index_y1:index_y2],ML[index_y1:index_y2],depth,simu.max_depth,simu.first_year,\
                        simu.output_file,simu.vmin,simu.vmax,basin)
 

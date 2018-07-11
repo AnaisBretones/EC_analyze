@@ -12,17 +12,16 @@ from scipy.interpolate import Rbf
 import os
 import sys
 import numpy as np
-import gsw
-#import make_plot
+import make_plot
 import loading
 
 
-var = 'IceC'			# sal, temp, IceC, ML
+var = 'sal'			# sal, temp, IceC, ML
 option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
+basin ='section_ESS'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -65,10 +64,10 @@ class From1950to2100():									#//
 
      elif compa =='no':
        if var == 'temp':                                                                #//
-        self.vmin = -1.23                                                               #//
-        self.vmax = -0.04                                                               #//
+        self.vmin = -2                                                               #//
+        self.vmax = 2                                                               #//
        elif var == 'sal':                                                               #//
-        self.vmin = 31.92                                                               #//
+        self.vmin = 30.15                                                               #//
         self.vmax = 34.86	                                                        #//
        elif var == 'IceC':                                                                #//
         self.vmin = 0.                                                               #//
@@ -114,21 +113,6 @@ def time_serie_Arctic_2D(path,var,lat_min,basin):
   mean_Arctic = np.nanmean(arctic,axis=0)
   return time, mean_Arctic
 
-def time_serie_sea_ice_ext(path,var,lat_min,basin):
-  yr, xr, time = loading.extracting_coord_2D(path)
-  ice = loading.extracting_var(path, var)
-  S = loading.extracting_var(path,'sal')
-  ice[np.where( S[:,:,0,:]==0. )] = np.nan
-
-  if basin =='undefined':
-     mask = loading.latitudinal_band_mask(yr,lat_min,90)
-  else:
-     mask = loading.Ocean_mask(xr,yr,basin)
-
-  area = area(xr,yr)
-  ice_ext = ice[mask,:] * area[mask]
-  mean_ice_ext = np.nanmean(ice_ext,axis=0)
-  return time, mean_ice_ext
 
 
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -147,7 +131,6 @@ index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 # JUST ONE TIME SERIE PLOT
 if comparison == 'no':
    if var == 'IceC':
-     time, ice_extent = time_serie_sea_ice_ext(simu.path,var,lat_min,basin)
 
      mean_5y = np.zeros(((index_y2-index_y1)/5))
      t_5y = np.zeros_like((mean_5y))
