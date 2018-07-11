@@ -86,6 +86,51 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    plt.close(fig)
    return
 
+def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,ice_ext2,y2,title,option,vmin,vmax):
+   # map all Atlantic and Arctic Ocean
+   # colorbar under the map: 
+   # Ice thickness, Temperature or Salinity
+   # year: age of the data
+   # time: month? yearly mean? 
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+
+   # Add Colorbar
+   cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax)
+   cs2=m.contour(x, y, ice_ext1, [0.15],colors='r')
+   plt.clabel(cs2, inline=True, fmt={0.15:''},fontsize=1, colors='r')
+   cs3=m.contour(x, y, ice_ext2, [0.15],colors='b')
+   plt.clabel(cs3, inline=True, fmt={0.15:str(y2)},fontsize=8, colors='k')
+
+   cbar = m.colorbar(cs, location='bottom')
+   if variable_name=='icet':
+      cbar.ax.set_xlabel('Ice Thickness (m)')
+   elif variable_name == 'sal':
+      cbar.ax.set_xlabel('Salinity (PSU)')
+   elif variable_name =='temp':
+      cbar.ax.set_xlabel('Temperature ($^{o}$C)')
+   elif variable_name=='ML':
+      cbar.ax.set_xlabel('Mixed layer depth (m)')
+   elif variable_name=='IceC':
+      cbar.ax.set_xlabel('Ice cover (concentration)')
+   
+
+   plt.title(str(title),size=20)
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
 def vertical_profile(var1,var2,y1,y2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
 
    i_zmax = np.max(np.where(z<zmax))

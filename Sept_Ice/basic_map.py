@@ -19,13 +19,12 @@ import loading
 var = 'IceC'
 option = 'Uncoupled'
 specificity = ''
-y1 = 2060#+140
+y1 = 2040#+140
 y2 = 2060#+140
 
 month = 'Sept'
 comparison = 'yes'
 
-title_plot =  str(specificity)+' '+str(y1)+' to '+str(y1+1)
 
 #//////////////////////////////////////////////////////////////////////////////////////////
 class From1950to2100():                                                                 #//
@@ -77,33 +76,37 @@ class From1950to2100():                                                         
 #//////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-simu = From1950to2100(option,specificity,var,y1,y2,comparison,month)
-
-if var == 'ML' or var == 'IceC':
-  yr, xr, time = loading.extracting_coord_2D(simu.path)
-else:
-  yr, xr, time, depth = loading.extracting_coord(simu.path)
-
-VarArray_simu = loading.extracting_var(simu.path, var)
-
-index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
-
-
-if comparison == 'no':
+   
+for i in range(0,20):
+   y1 = y1+1   
+   title_plot =  str(specificity)+' '+str(y1)+' to '+str(y1+1)
+   simu = From1950to2100(option,specificity,var,y1,y2,comparison,month)
+   
    if var == 'ML' or var == 'IceC':
-     mask = (VarArray_simu[:,:,index_y1]>0.15)
-     make_plot.plot_map(xr,yr,VarArray_simu[mask,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+     yr, xr, time = loading.extracting_coord_2D(simu.path)
    else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-elif comparison == 'yes':
-   index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
-   if var == 'ML' or var == 'IceC':
-     #VarArray_simu[np.where(VarArray_simu==0)]=np.nan
-     make_plot.plot_map(xr,yr,VarArray_simu[:,:,index_y1]-VarArray_simu[:,:,index_y1c] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-   else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[mask,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[mask,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vma)
+     yr, xr, time, depth = loading.extracting_coord(simu.path)
+   
+   VarArray_simu = loading.extracting_var(simu.path, var)
+   
+   index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
+   
+   
+   if comparison == 'no':
+      if var == 'ML' or var == 'IceC':
+        mask = (VarArray_simu[:,:,index_y1]>0.15)
+        make_plot.plot_map(xr,yr,VarArray_simu[mask,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+      else:
+        make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+   elif comparison == 'yes':
+      index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
+      if var == 'ML' or var == 'IceC':
+        array_to_plot = VarArray_simu[:,:,index_y1c]-VarArray_simu[:,:,index_y1]
+        array_to_plot[array_to_plot==0] = np.nan
+        array_to_plot = np.ma.masked_invalid(array_to_plot)
+        make_plot.plot_map_with_ice_extent(xr,yr,array_to_plot ,var,VarArray_simu[:,:,index_y1],y1,VarArray_simu[:,:,index_y1c],simu.y1_compa,title_plot,simu.output_file,simu.vmin,simu.vmax)
+      else:
+        make_plot.plot_map(xr,yr,np.mean(VarArray_simu[mask,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[mask,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vma)
 
 
           
