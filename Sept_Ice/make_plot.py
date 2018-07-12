@@ -150,7 +150,7 @@ def vertical_profile(var1,var2,y1,y2,variable_name,vmin,vmax,z,zmax,ocean,lat_mi
    plt.ylim([z[i_zmax],0])
    plt.title(str(ocean.replace("_"," ")))
    if ocean == 'undefined':
-      plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
+      plt.title('Arctic mediterranean seas ($>$'+str(lat_min)+'$^{o}$N)')
    else:
       plt.title(str(ocean.replace("_"," ")))
    box = ax.get_position()
@@ -191,7 +191,7 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
     cbar.set_label(r'Salinity (PSU)',fontsize=18)
 
    if ocean == 'undefined':
-      plt.title('Mean Arctic ($>$66.34$^{o}$N)')
+      plt.title('Arctic mediterranean seas ($>$66.34$^{o}$N)')
    else:
       plt.title(str(ocean.replace("_"," ")),size=20)
 

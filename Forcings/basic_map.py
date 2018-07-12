@@ -16,11 +16,12 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'ML'
-option = 'Coupled'
+var = 'runoff'		#sal, runoff, albedo, downHF
+option = 'Uncoupled'
 specificity = ''
-y1 = 2090
+y1 = 2050
 y2 = 2100
+control = 'Uncoupled'   # Uncoupled or historic
 
 comparison = 'yes'
 
@@ -42,8 +43,8 @@ class From1950to2100():                                                         
                            +str(self.y2)+'_'+str(option)                                #//
      elif compa == 'yes':
         self.output_file = str(var)+'_map_'+str(self.y1)+'to'\
-                           +str(self.y2)+'AnoTo90s_'+str(option)                                #//
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc'
+                           +str(self.y2)                                #//
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_'+str(option)+'.nc'
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -55,83 +56,63 @@ class From1950to2100():                                                         
       elif var == 'ML':
         self.vmin = -20
         self.vmax = 20
-      elif var == 'IceC':
-        self.vmin = -1
-        self.vmax = 0.
+      elif var == 'runoff':
+        self.vmin = -1E20
+        self.vmax = 1E20
 
      elif compa =='no':
-      if var == 'IceC':
-	self.vmin = 0
-        self.vmax = 1
-      elif var == 'ML':
-        self.vmin = 12
-        self.vmax = 70
-      elif var == 'temp':                                                                #//
-        self.vmin = -1.2                                                               #//
-        self.vmax = 15                                                               #//
-      elif var == 'sal':                                                               #//
+       if var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86                                                               #//
+       elif var == 'runoff':
+        self.vmin = 1*1E8                                                                   #//
+        self.vmax = 1E20                                                                  #//
+       elif var == 'downHF':
+        self.vmin = 0                                                                   #//
+        self.vmax = 30                                                                  #//
+       elif var == 'albedo':
+        self.vmin = 0                                                                   #//
+        self.vmax = 10 
 
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
 
-#//////////////////////////////////////////////////////////////////////////////////////////
-class yearly1950to2100():                                                               #//
-                                                                                        #//
-  #_____________________________________                                                #//
-  def __init__(self, option, var,y1,y2,compa):                                                      #//
-      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/classic_YearlyMeans_'+str(option)+'.nc' 
-      self.max_depth = 1000                                                             #//
-      self.first_year = 1950                                                            #//
-      self.last_year = 2100
-      if var == 'temp':                                                                 #//
-        self.vmin = -5                                                                  #//
-        self.vmax = 10                                                                  #//
-      elif var == 'sal':                                                                #//
-        self.vmin = 31.92                                                               #//
-        self.vmax = 34.86                                                               #//
-      elif var == 'ML':
-        self.vmin = 0
-        self.vmax = 300
-      self.output_file = str(var)+'_ymeans_'+str(option)                                #//
-                                                                                        #//
-      return                                                                            #//
-                                                                                        #//
-#//////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-#months = ['jan','feb','mars','apr','mai','june','july','aug','sept','oct','nov','dec']
-#i_month = months.index(month)
 
 simu = From1950to2100(option,specificity,var,y1,y2,comparison)
 
-if var == 'ML' or var == 'IceC':
+if var == 'ML' or var == 'runoff':
   yr, xr, time = loading.extracting_coord_2D(simu.path)
 else:
   yr, xr, time, depth = loading.extracting_coord(simu.path)
 
-print(np.shape(time),np.shape(xr))
-VarArray_simu = loading.extracting_var(simu.path, var)
 
+VarArray_simu = loading.extracting_var(simu.path, var)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
 
 if comparison == 'no':
-   if var == 'ML' or var == 'IceC':
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-   else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+   array_to_plot = np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)
+   print(np.nanmax(array_to_plot))
+   array_to_plot[array_to_plot==0] = np.nan
+   array_to_plot = np.ma.masked_invalid(array_to_plot)
+   make_plot.plot_map(xr,yr,array_to_plot ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
 elif comparison == 'yes':
-   index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
-   index_y2c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2_compa))
-   if var == 'ML' or var == 'IceC':
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-   else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[mask,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[mask,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vma)
+   if control == 'Uncoupled':
+     path2 = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_Coupled.nc'
+     Coupled_array = loading.extracting_var(path2, var)
+     out = str(simu.output_file)+'CvsUC'
+     array_to_plot = np.mean(Coupled_array[:,:,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)
+   else: 
+     out = str(simu.output_file)+'AnoTo90s_'+str(option)
+     index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
+     index_y2c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2_compa))
+     array_to_plot = np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,index_y1c:index_y2c+1],axis=2)
+
+   array_to_plot[array_to_plot==0] = np.nan
+   array_to_plot = np.ma.masked_invalid(array_to_plot)
+   make_plot.plot_map(xr,yr,array_to_plot,var,title_plot,out,simu.vmin,simu.vmax)
 
 
           
