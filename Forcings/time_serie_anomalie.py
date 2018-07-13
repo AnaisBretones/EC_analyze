@@ -17,12 +17,12 @@ import make_plot
 import loading
 
 
-var = 'albedo'			# sal, runoff, albedo, downHF
-option = 'Uncoupled'		# Coupled, Uncoupled
+var = 'MeltedIce'			# sal, runoff, albedo, downHF
+option = 'Coupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2100
 
-basin ='greenland_sea'		# arctic_ocean, BS_and_KS, undefined
+basin ='around_greenland'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -79,6 +79,9 @@ class From1950to2100():									#//
        elif var == 'albedo':
         self.vmin = 0                                                                   #//
         self.vmax = 10		                                                        #//
+       elif var == 'MeltedIce':
+        self.vmin = 0                                                                   #//
+        self.vmax = 10		                                                        #//
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +100,7 @@ def time_serie_Arctic(path,var,lat_min,basin):
      make_plot.points_on_map(xr[mask],yr[mask],var,basin)
 
   arctic = TorS[mask,:,:]
-
+  arctic[np.where(arctic==0)]=np.nan
   mean_Arctic = np.nanmean(arctic,axis=0)
 
   return time, depth, mean_Arctic
@@ -106,7 +109,7 @@ def time_serie_Arctic(path,var,lat_min,basin):
 def time_serie_Arctic_2D(path,var,lat_min,basin):
   yr, xr, time = loading.extracting_coord_2D(path)
   ice = loading.extracting_var(path, var)
-
+  print(np.max(ice),np.min(ice))
   S = loading.extracting_var(path,'sal')
   ice[np.where( S[:,:,0,:]==0. )] = np.nan
 
@@ -117,14 +120,15 @@ def time_serie_Arctic_2D(path,var,lat_min,basin):
      make_plot.points_on_map(xr[mask],yr[mask],var,basin)
 
   arctic = ice[mask,:]
-  mean_Arctic = np.nanmean(arctic,axis=0)
+  arctic[np.where(arctic==0)]=np.nan
+  mean_Arctic = np.nansum(arctic,axis=0)
   return time, mean_Arctic
 
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
 simu = From1950to2100(option,var,y1,y2,comparison,lat_min,basin) 
-if var == 'IceC' or var =='albedo' or var =='downHF' or var =='runoff':
+if var == 'IceC' or var =='albedo' or var =='downHF' or var =='runoff' or var =='MetledIce':
   time, mean_Arctic_simu = time_serie_Arctic_2D(simu.path,var,lat_min,basin)
 else:
   time, depth, mean_Arctic_simu = time_serie_Arctic(simu.path,var,lat_min,basin)
@@ -134,7 +138,7 @@ index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
 # JUST ONE TIME SERIE PLOT
 if comparison == 'no':
-   if var == 'IceC' or var =='albedo' or var =='downHF' or var =='runoff':
+   if var == 'IceC' or var =='albedo' or var =='downHF' or var =='runoff' or var =='MeltedIce':
      print(np.max(mean_Arctic_simu))
      print(np.shape(mean_Arctic_simu))
      print(mean_Arctic_simu)

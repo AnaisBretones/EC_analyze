@@ -16,14 +16,14 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'runoff'		#sal, runoff, albedo, downHF
-option = 'Uncoupled'
+var = 'MeltedIce'		#sal, runoff, albedo, downHF
+option = 'Coupled'
 specificity = ''
-y1 = 2050
+y1 = 2000
 y2 = 2100
 control = 'Uncoupled'   # Uncoupled or historic
 
-comparison = 'yes'
+comparison = 'no'
 
 title_plot =  str(specificity)+' '+str(y1)+' to '+str(y2)
 
@@ -59,13 +59,16 @@ class From1950to2100():                                                         
       elif var == 'runoff':
         self.vmin = -1E20
         self.vmax = 1E20
+      elif var == 'MeltedIce':
+        self.vmin = -2*1E-5                                                                   #//
+        self.vmax = 2E-5                                                                #//
 
      elif compa =='no':
        if var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86                                                               #//
        elif var == 'runoff':
-        self.vmin = 1*1E8                                                                   #//
+        self.vmin = -2*1E-5                                                                   #//
         self.vmax = 1E20                                                                  #//
        elif var == 'downHF':
         self.vmin = 0                                                                   #//
@@ -73,6 +76,9 @@ class From1950to2100():                                                         
        elif var == 'albedo':
         self.vmin = 0                                                                   #//
         self.vmax = 10 
+       elif var == 'MeltedIce':
+        self.vmin = -2*1E-5                                                                   #//
+        self.vmax = 1E-4                                                                  #//
 
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -98,11 +104,12 @@ if comparison == 'no':
    array_to_plot[array_to_plot==0] = np.nan
    array_to_plot = np.ma.masked_invalid(array_to_plot)
    make_plot.plot_map(xr,yr,array_to_plot ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+
 elif comparison == 'yes':
    if control == 'Uncoupled':
      path2 = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_Coupled.nc'
      Coupled_array = loading.extracting_var(path2, var)
-     out = str(simu.output_file)+'CvsUC'
+     out = str(simu.output_file)+'C-UC'
      array_to_plot = np.mean(Coupled_array[:,:,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)
    else: 
      out = str(simu.output_file)+'AnoTo90s_'+str(option)
@@ -112,6 +119,7 @@ elif comparison == 'yes':
 
    array_to_plot[array_to_plot==0] = np.nan
    array_to_plot = np.ma.masked_invalid(array_to_plot)
+   print(np.nanmax(array_to_plot))
    make_plot.plot_map(xr,yr,array_to_plot,var,title_plot,out,simu.vmin,simu.vmax)
 
 

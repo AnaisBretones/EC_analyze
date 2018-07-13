@@ -44,6 +44,10 @@ def points_on_map(xr,yr,variable_name,ocean):
    plt.close(fig)
    return
 
+def fmt(x, pos):
+   a, b = '{:.2e}'.format(x).split('e')
+   b = int(b)
+   return r'${} \times 10^{{{}}}$'.format(a, b)
 
 
 def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
@@ -53,7 +57,7 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # year: age of the data
    # time: month? yearly mean? 
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=90, lat_1=89.9999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -69,6 +73,7 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # Add Colorbar
    cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax)
    cbar = m.colorbar(cs, location='bottom')
+   #cbar.ax.set_yticklabels(['{:.000f}'.format(x) for x in np.arange(vmin, vmax, 5)])
    if variable_name=='icet':
       cbar.ax.set_xlabel('Ice Thickness (m)')
    elif variable_name == 'sal':
@@ -79,7 +84,12 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
       cbar.ax.set_xlabel('Mixed layer depth (m)')
    elif variable_name=='IceC':
       cbar.ax.set_xlabel('Ice cover (concentration)')
-   
+   elif variable_name=='MeltedIce':
+      cbar.formatter.set_powerlimits((0, 0))
+      cbar.update_ticks()
+      cbar.ax.set_xlabel('FWF ice to ocean (kg.m$^{-2}$.s$^{-1}$)')
+    
+    
 
    plt.title(str(title),size=20)
    plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')

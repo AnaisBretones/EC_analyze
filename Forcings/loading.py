@@ -51,6 +51,8 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['sorunoff'][:])
   elif variable_name =='albedo':
     var = Forder(nc.variables['soicealb'][:])
+  elif variable_name =='MeltedIce':
+    var = Forder(nc.variables['iowaflup'][:])
   nc.close()
   return var
 
@@ -126,6 +128,8 @@ def Ocean_mask(x,y,basin):
      mask = ((y<80)&(y>68)&(x<105)&(x>20))
   elif basin == 'greenland_sea':
      mask = ( (y<80) & (((y>65)&(x>-25)&(x<-15)) | ((y>76)&(x>0)&(x<20)) | ((x>-15)&(x<0)&(y>76+11*x/15.))))
+  elif basin == 'around_greenland':
+     mask = ((y<85) & (y>75) & (x<-12) & (x>-100)) | ((y<75) & (y>67) & (x>-60) & (x<-18)) | ((y<67) & (y>58) & (x<-33) & (x>-58))
 
   return mask
 
