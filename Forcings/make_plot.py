@@ -21,7 +21,7 @@ def Forder(var):
 
 def points_on_map(xr,yr,variable_name,ocean):
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -88,6 +88,10 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
       cbar.formatter.set_powerlimits((0, 0))
       cbar.update_ticks()
       cbar.ax.set_xlabel('FWF ice to ocean (kg.m$^{-2}$.s$^{-1}$)')
+   elif variable_name=='runoff':
+      cbar.formatter.set_powerlimits((0, 0))
+      cbar.update_ticks()
+      cbar.ax.set_xlabel('Runoff (kg.m$^{-2}$.s$^{-1}$)')
     
     
 
@@ -199,13 +203,75 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   if variable_name == 'IceC':
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
+  plt.title('basins')
+  plt.savefig(str(variable_name)+'/all_basins.png')
+  return
+
+
+def var_fc_time_2(var,var2,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
+  plt.figure(figsize=(10,6))
+  plt.rc('text', usetex=True)
+  plt.rc('font', family='serif')
+  fig,ax=plt.subplots()
+  t = t/(3600*24*365.)
+  plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
+  #plt.ylim([0.,0.75])
+  plt.plot(first_year_file+t,var, label = 'Uncouled')
+  plt.plot(first_year_file+t,var2, label = 'Coupled')
+  if variable_name == 'IceC':
+     plt.ylabel('Ice cover',fontsize=18)
+  plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
   else:
       plt.title(str(ocean.replace("_"," ")),size=20)
+
+  box = ax.get_position()
+  ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                 box.width, box.height * 0.7])
+  h, l = ax.get_legend_handles_labels()
+  ax.legend(h, l,  bbox_to_anchor=(-.5,-.05, 2,-0.15), loc=9,
+           ncol=1)
   plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
   return
 
 
+def masks_on_map(variable_name,xr1,yr1,m1, xr2,yr2,m2, xr3,yr3,m3, xr4,yr4,m4, xr5,yr5,m5):
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=70, lat_1=89.99999999, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x1,y1 = m(xr1, yr1)
+   x2,y2 = m(xr2, yr2)
+   x3,y3 = m(xr3, yr3)
+   x4,y4 = m(xr4, yr4)
+   x5,y5 = m(xr5, yr5)
+
+   plt.figure(figsize=(15, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+   m.drawparallels(np.linspace(0, 90, 10))
+   m.drawmeridians(np.linspace(-180, 180, 10))
+   # Add Colorbar
+   cs = m.scatter(x1,y1,marker='o', color='b',s=5, label='Arctic mediterranean')
+   cs = m.scatter(x2,y2,marker='o', color='k',s=0.4, label=str(m2.replace("_"," ")))
+   cs = m.scatter(x3,y3,marker='o', color='r',s=0.5, label=str(m3.replace("_"," ")))
+   cs = m.scatter(x4,y4,marker='o', color='y',s=0.2, label=str(m4.replace("_"," ")))
+   cs = m.scatter(x5,y5,marker='o', color='m',s=0.5, label=str(m5.replace("_"," ")))
+
+   box = ax.get_position()
+   ax.set_position([box.x0, box.y0 + box.height * 0.15,
+                 box.width, box.height * 0.9])
+   h, l = ax.get_legend_handles_labels()
+   ax.legend(h, l,  bbox_to_anchor=(-.5,0.1, 2,-0.15), loc=9,
+           ncol=2)
 
 
+   plt.title('basins')
+   plt.savefig(str(variable_name)+'/all_basins.png')
+   plt.close(fig)
+   return

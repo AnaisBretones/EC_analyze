@@ -16,14 +16,14 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'MeltedIce'		#sal, runoff, albedo, downHF
-option = 'Coupled'
+var = 'runoff'		#sal, runoff, albedo, downHF
+option = 'Uncoupled'
 specificity = ''
-y1 = 2000
+y1 = 2090
 y2 = 2100
 control = 'Uncoupled'   # Uncoupled or historic
 
-comparison = 'no'
+comparison = 'yes'
 
 title_plot =  str(specificity)+' '+str(y1)+' to '+str(y2)
 

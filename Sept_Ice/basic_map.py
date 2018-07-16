@@ -38,10 +38,10 @@ class From1950to2100():                                                         
      self.y1_compa = y1+1
      self.y2_compa = 2042
      if compa == 'no':                                                                  #//
-        self.output_file = str(var)+str(month)+'_map_'+str(self.y1)+'to'\
+        self.output_file = str(option)+'/'+str(var)+str(month)+'_map_'+str(self.y1)+'to'\
                            +str(self.y2)+'_'+str(option)                                #//
      elif compa == 'yes':
-        self.output_file = str(var)+str(month)+'_map_Ano'+str(self.y1)+'To'+str(self.y1_compa)+'_'+str(option)                                #//
+        self.output_file = str(option)+'/'+str(var)+str(month)+'_map_Ano'+str(self.y1)+'To'+str(self.y1_compa)+'_'+str(option)                                #//
      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/'+str(month)+'_Ice_'+str(option)+'.nc'
 
      if compa == 'yes':

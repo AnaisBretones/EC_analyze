@@ -17,12 +17,11 @@ import gsw
 import loading
 
 
-var = 'MeltedIce'
+var = 'IceC'			# sal, temp, IceC, ML
 option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2100
-month = 'april'                  #Sept or April
-basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
+basin ='undefined'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -38,7 +37,7 @@ y2_compa = 2000
 class From1950to2100():									#//
         										#//
   #___________________									#//
-  def __init__(self,option,var,y1,y2,compa,lat_min,basin,month):				#//
+  def __init__(self,option,var,y1,y2,compa,lat_min,basin):				#//
      self.max_depth = 1000	                                                        #//
      self.first_year = 1950
      self.y1 = y1 	                                                                #//
@@ -49,24 +48,34 @@ class From1950to2100():									#//
         sufix = str(self.y1)+'to'+str(self.y2)+'_'+str(basin)+'_'+str(option)
 
      if compa == 'no':									#//
-        self.output_file = str(var)+'extent_TimeSerie_'+str(sufix)
+        self.output_file = str(var)+'extent__TimeSerie_'+str(sufix)
      elif compa == 'yes':
-        self.output_file = str(var)+'extent_TimeSerieAnomaly_'+str(sufix)
+        self.output_file = str(var)+'extent__TimeSerieAnomaly_'+str(sufix)
 
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_'\
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'\
                   +str(option)+'.nc' 
 
      if compa == 'yes':
+      if var == 'temp':                                                                 #//
         self.vmin = -1                                                                   #//
         self.vmax = 2.6                                                                 #//
+      elif var == 'sal':                                                                #//
+        self.vmin = -1.08                                                               #//
+        self.vmax = 0.15	                                                        #//
 
      elif compa =='no':
-        self.vmin = -3*1E14                                                               #//
-        self.vmax = 3*1E14                                                              #//
+       if var == 'temp':                                                                #//
+        self.vmin = -1.23                                                               #//
+        self.vmax = -0.04                                                               #//
+       elif var == 'sal':                                                               #//
+        self.vmin = 31.92                                                               #//
+        self.vmax = 34.86	                                                        #//
+       elif var == 'IceC':                                                                #//
+        self.vmin = 0.                                                               #//
+        self.vmax = 1E6                                                                #//
 
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
-
 def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
@@ -75,8 +84,9 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   t = t/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
   #plt.ylim([0.,0.75])
-  plt.plot(first_year_file+t,var)
-  plt.ylabel('FWF (kg.s$^{-1}$)',fontsize=18)
+  if variable_name == 'IceC':
+     plt.plot(first_year_file+t,var)
+     plt.ylabel('Sea ice extent (m$^{2}$)',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
       plt.title('Arctic mediterranean seas ($>$'+str(lat_min)+'$^{o}$N)')
@@ -86,9 +96,9 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   return
 
 
-def time_serie(path,var,lat_min,basin):
+def time_serie_sea_ice_ext(path,var,lat_min,basin):
   yr, xr, time = loading.extracting_coord_2D(path)
-  melted_ice = loading.extracting_var(path, var)
+  ice = loading.extracting_var(path, var)
   S = loading.extracting_var(path,'sal')
 
   if basin =='undefined':
@@ -96,40 +106,12 @@ def time_serie(path,var,lat_min,basin):
   else:
      mask = loading.Ocean_mask(xr,yr,basin)
   area = size_each_bins(xr,yr)
+  ice[np.where(ice<0.15)]=0.
+  ice[np.where(ice>0.15)]=1.
 
-  FWF = area[mask]*melted_ice[mask].transpose(1, 0)*1E6
-  mean_FWF = np.nansum(FWF,axis=1)
-  return time, mean_FWF
-
-def var_fc_time_2(var,var2,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
-  plt.figure(figsize=(10,6))
-  plt.rc('text', usetex=True)
-  plt.rc('font', family='serif')
-  fig,ax=plt.subplots()
-  t = t/(3600*24*365.)
-  plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  #plt.ylim([0.,0.75])
-  plt.plot(first_year_file+t,var, label = 'Uncoupled')
-  plt.plot(first_year_file+t,var2, label = 'Coupled')
-  if variable_name == 'IceC':
-     plt.ylabel('Ice cover',fontsize=18)
-  elif variable_name=='MeltedIce' or variable_name =='runoff':
-     plt.ylabel('FWF (kg.s$^{-1}$)')
-
-  plt.xlabel('time',fontsize=18)
-  if ocean == 'undefined':
-      plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
-  else:
-      plt.title(str(ocean.replace("_"," ")))
-
-  box = ax.get_position()
-  ax.set_position([box.x0, box.y0 + box.height * 0.3,
-                 box.width, box.height * 0.7])
-  h, l = ax.get_legend_handles_labels()
-  ax.legend(h, l,  bbox_to_anchor=(-.5,-.05, 2,-0.15), loc=9,
-           ncol=1)
-  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
-  return
+  ice_extent = area[mask]*ice[mask].transpose(1, 0) 
+  mean_ice_ext = np.nansum(ice_extent,axis=1)
+  return time, mean_ice_ext
 
   
 
@@ -143,13 +125,6 @@ def size_bin(x0, x1, x2, y0, y1, y2):
 def size_each_bins(xr,yr):
 
   area = np.zeros_like((xr))
-  '''for j in range(1,np.size(xr[0,:])-1):
-    area[0,j] = size_bin(xr[-1,j], xr[0,j], xr[1,j], yr[0,j-1], yr[0,j], yr[0,j+1])
-    area[-1,j] = size_bin(xr[-2,j], xr[-1,j], xr[0,j], yr[-1,j-1], yr[-1,j], yr[-1,j+1])
-  
-  for i in range(1,np.size(xr[:,0])-1):
-    area[i,0] = size_bin(xr[i-1,0], xr[i,0], xr[i+1,0], yr[i,0], yr[i,0], yr[i,1])
-    area[i,-1] = size_bin(xr[i-1,-1], xr[i,-1], xr[i+1,-1], yr[i,-2], yr[i,-1], yr[i,-1])'''
   for i in range(1,np.size(xr[:,0])-1):
     for j in range(1,np.size(xr[0,:])-1):
       area[i,j] = size_bin(xr[i-1,j], xr[i,j], xr[i+1,j], yr[i,j-1], yr[i,j], yr[i,j+1])
@@ -157,14 +132,10 @@ def size_each_bins(xr,yr):
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-simu = From1950to2100(option,var,y1,y2,comparison,lat_min,basin,month) 
-time, FWF_region = time_serie(simu.path,var,lat_min,basin)
 
-simu_c = From1950to2100('Coupled',var,y1,y2,comparison,lat_min,basin,month) 
-time, FWF_region_c = time_serie(simu_c.path,var,lat_min,basin)
-
-
+simu = From1950to2100(option,var,y1,y2,comparison,lat_min,basin) 
+time, ice_extent = time_serie_sea_ice_ext(simu.path,var,lat_min,basin)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
- 
-var_fc_time_2(FWF_region[index_y1:index_y2+1],FWF_region_c[index_y1:index_y2+1],var,time[index_y1:index_y2+1],simu.first_year,lat_min,simu.output_file,basin)
+
+var_fc_time(ice_extent[index_y1:index_y2+1],var,time[index_y1:index_y2+1],simu.first_year,lat_min,simu.output_file,basin)
