@@ -35,7 +35,7 @@ import loading
 option = 'Coupled'			# Coupled or Uncoupled
 year = 2100				# a year between 1950 and 2100
 comparison = 'no'
-month = 'Sept'                          # Sept or april
+month = 'March'                          # Sept or april
 #----------------------------------
 
 #//////////////////////////////////////////////////////////////////////////////////////////

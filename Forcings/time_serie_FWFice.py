@@ -17,12 +17,12 @@ import gsw
 import loading
 
 
-var = 'MeltedIce'
+var = 'runoff'
 option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2100
 month = 'april'                  #Sept or April
-basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
+basin ='undefined'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -118,7 +118,7 @@ def var_fc_time_2(var,var2,variable_name,t,first_year_file,lat_min,name_outfile,
 
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
-      plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
+      plt.title('Arctic Mediterranean ($>$'+str(lat_min)+'$^{o}$N)')
   else:
       plt.title(str(ocean.replace("_"," ")))
 

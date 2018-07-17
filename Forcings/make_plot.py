@@ -153,7 +153,7 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
     cbar.set_label(r'Salinity (PSU)',fontsize=18)
 
    if ocean == 'undefined':
-      plt.title('Mean Arctic ($>$66.34$^{o}$N)')
+      plt.title('Arctic Mediterranean ($>$66.34$^{o}$N)')
    else:
       plt.title(str(ocean.replace("_"," ")),size=20)
 

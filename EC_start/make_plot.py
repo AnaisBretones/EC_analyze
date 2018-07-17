@@ -111,6 +111,40 @@ def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name
    plt.close(fig)
    return
 
+def vertical_profile3(var1,var2,var3,y1,y2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
+
+   i_zmax = np.max(np.where(z<zmax))
+   plt.figure(figsize=(7,15))
+   fig,ax = plt.subplots()
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   ax.plot(var1[0:i_zmax+1],z[0:i_zmax+1],label=str(y1))
+   ax.plot(var2[0:i_zmax+1],z[0:i_zmax+1],color='grey')
+   ax.plot(var3[0:i_zmax+1],z[0:i_zmax+1],color='grey')
+   '''
+   ax.fill_between(z[0:i_zmax+1],var3[0:i_zmax+1], var2[0:i_zmax+1], color = 'lightgrey',label = 'standard error')
+   lineA,=ax.plot(var1[0:i_zmax+1],z[0:i_zmax+1],linewidth=2.5, color='darkslategray',label=str(lat_min))
+   blue_patch = patches.Patch(color='lightgrey', label='standard error')
+   ax.legend(handles = [lineA, blue_patch], \
+          prop={'size':11},bbox_to_anchor=(1.1, 1.05))
+   '''
+   plt.gca().invert_yaxis()
+   plt.ylabel(r'Depth (m)')
+   if variable_name == 'temp':
+     plt.xlabel(r'Temperature ($^{o}$C)')
+   elif variable_name == 'density':
+     plt.xlabel(r'Density')
+   plt.xlim([vmin,vmax])
+   plt.ylim([z[i_zmax],0])
+   plt.title(str(ocean.replace("_"," ")))
+   if ocean == 'undefined':
+      plt.title('Arctic mediterranean seas ($>$'+str(lat_min)+'$^{o}$N)')
+   else:
+      plt.title(str(ocean.replace("_"," ")))
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
 
 
 def time_serie(var,variable_name,t,ML,z,zmax,year,option,vmin,vmax,ocean):
