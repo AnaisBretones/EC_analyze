@@ -19,7 +19,7 @@ import loading
 var = 'temp'			# sal, temp, Uorth Utang density
 option = 'Coupled'		# Coupled, Uncoupled
 
-y1 = 2100
+y1 = 2000
 y2 = 2100
 
 basin ='SiberianOrth'		# GSR, SiberianOrth
@@ -51,8 +51,8 @@ class From1950to2100():									#//
      elif compa == 'yes':
         self.output_file = str(var)+'Sept_TimeSerieAnomaly_'+str(sufix)
 
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/test/section.nc'#section/section_' \
-                 # +str(basin)+'_'+str(option)+'.nc'  
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/section_' \
+                  +str(basin)+'_'+str(option)+'.nc'  
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -64,11 +64,20 @@ class From1950to2100():									#//
 
      elif compa =='no':
        if var == 'temp':                                                                #//
-        self.vmin = -2                                                               #//
-        if y1 > 2050:
-           self.vmax = 16
+        if basin == 'SiberianOrth':
+         if y1 >2050:
+           self.vmin = -0.6
+           self.vmax = 1.7
+         else:
+           self.vmin = -1.8
+           self.vmax = -0.60
+
         else:
-           self.vmax = 14                                                               #//
+          self.vmin = -2                                                               #//
+          if y1 > 2050:
+             self.vmax = 16
+          else:
+             self.vmax = 14                                                               #//
        elif var == 'sal':                                                               #//
         if y1>2050:
           self.vmin = 31.95                                                               #//
