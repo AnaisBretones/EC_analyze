@@ -90,20 +90,24 @@ def regional_subset(var,yr,lat_min,lat_max):
   print(n)
   return var_region[:,:,0:n-1]
 
-def AtlOcean_mask(salinity,x,y):
-  ni = np.size(salinity[:,0,0])
-  nj = np.size(salinity[0,:,0])
-  nz = np.size(salinity[0,0,:])
+def latitudinal_band_mask(y,lat_min,lat_max):
+  mask = ((y>lat_min) & (y<lat_max))
+  return mask
 
-  mask = np.zeros_like((salinity))
-  mask[salinity != 0] = 1
-  mask[ np.where(y<66.3),: ] = 0
+def land_mask(salinity):
+  mask = salinity != 0
+  return mask
 
-  mask2 = np.zeros((ni,nj,nz))
-  mask2[ np.where(np.abs(x-(270+105)/2.)<(270-105)/2.),:] = 1
-  mask2[ np.where(y>=66.3),:] = 1
- 
-  mask = mask * mask2
-
+def Ocean_mask(x,y,basin):
+  if basin == 'arctic_ocean':
+     mask = (y>81) | ((y>66.3) & ((x>105)|(x<-90) ))
+  elif basin == 'BS_and_KS':
+     mask = ((y<80)&(y>68)&(x<105)&(x>20))
+  elif basin == 'greenland_sea':
+     mask = ( (y<80) & (((y>65)&(x>-25)&(x<-15)) | ((y>76)&(x>0)&(x<20)) | ((x>-15)&(x<0)&(y>76+11*x/15.))))
+  elif basin == 'section_ESS':
+     mask = ((x>140) & (x<150) & (y>75) & (y<80))
+  elif basin == 'section_FS':
+     mask = ((y<80) & (y>76)&(x>0)&(x<20))
   return mask
 

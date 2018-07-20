@@ -19,8 +19,8 @@ import loading
 var = 'IceC'
 option = 'Uncoupled'
 specificity = ''
-y1 = 2040#+140
-y2 = 2060#+140
+y1 = 2046#+140
+y2 = y1+12
 
 month = 'Sept'
 comparison = 'yes'
@@ -37,11 +37,7 @@ class From1950to2100():                                                         
      self.y2 = y2                                                                       #//
      self.y1_compa = y1+1
      self.y2_compa = 2042
-     if compa == 'no':                                                                  #//
-        self.output_file = str(option)+'/'+str(var)+str(month)+'_map_'+str(self.y1)+'to'\
-                           +str(self.y2)+'_'+str(option)                                #//
-     elif compa == 'yes':
-        self.output_file = str(option)+'/'+str(var)+str(month)+'_map_Ano'+str(self.y1)+'To'+str(self.y1_compa)+'_'+str(option)                                #//
+     self.output_file = str(var)+str(month)+'_plaquette_'+str(self.y1)+'To'+str(self.y2)+'_'+str(option)                                #//
      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/'+str(month)+'_Ice_'+str(option)+'.nc'
 
      if compa == 'yes':
@@ -75,38 +71,44 @@ class From1950to2100():                                                         
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
+m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=85, lat_1=89.999, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
 
-   
-for i in range(0,20):
+fig = plt.figure(figsize=(10, 6))
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
+
+
+fig.subplots_adjust(hspace=0.2, wspace=0.000001)
+
+for i in range(1,13):
    y1 = y1+1   
+   ax = plt.subplot(3, 4, i)
+   ax.set_title(str(y1),color='r')
    title_plot =  str(specificity)+' '+str(y1)+' to '+str(y1+1)
+
    simu = From1950to2100(option,specificity,var,y1,y2,comparison,month)
    
-   if var == 'ML' or var == 'IceC':
-     yr, xr, time = loading.extracting_coord_2D(simu.path)
-   else:
-     yr, xr, time, depth = loading.extracting_coord(simu.path)
+   yr, xr, time = loading.extracting_coord_2D(simu.path)
+   
+   x,y = m(xr, yr)
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
    
    VarArray_simu = loading.extracting_var(simu.path, var)
    
    index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
    
    
-   if comparison == 'no':
-      if var == 'ML' or var == 'IceC':
-        mask = (VarArray_simu[:,:,index_y1]>0.15)
-        make_plot.plot_map(xr,yr,VarArray_simu[mask,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-      else:
-        make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
-   elif comparison == 'yes':
-      index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
-      if var == 'ML' or var == 'IceC':
-        array_to_plot = VarArray_simu[:,:,index_y1c]-VarArray_simu[:,:,index_y1]
-        array_to_plot[array_to_plot==0] = np.nan
-        array_to_plot = np.ma.masked_invalid(array_to_plot)
-        make_plot.plot_map_with_ice_extent(xr,yr,array_to_plot ,var,VarArray_simu[:,:,index_y1],y1,VarArray_simu[:,:,index_y1c],simu.y1_compa,title_plot,simu.output_file,simu.vmin,simu.vmax)
-      else:
-        make_plot.plot_map(xr,yr,np.mean(VarArray_simu[mask,0,index_y1:index_y2+1],axis=2)-np.mean(VarArray_simu[mask,0,index_y1c:index_y2c+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vma)
+   index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
+   array_to_plot = VarArray_simu[:,:,index_y1c]-VarArray_simu[:,:,index_y1]
+   array_to_plot[array_to_plot==0] = np.nan
+   array_to_plot = np.ma.masked_invalid(array_to_plot)
+   #make_plot.plot_map_with_ice_extent(xr,yr,array_to_plot ,var,VarArray_simu[:,:,index_y1],y1,VarArray_simu[:,:,index_y1c],simu.y1_compa,title_plot,simu.output_file,simu.vmin,simu.vmax)
 
-
-          
+   cs = m.pcolor(x,y,array_to_plot,vmin=simu.vmin,vmax=simu.vmax)
+   cs2=m.contour(x, y, VarArray_simu[:,:,index_y1], [0.15],colors='r')
+   cs3=m.contour(x, y, VarArray_simu[:,:,index_y1c], [0.15],colors='b')
+plt.savefig(str(var)+'/'+str(simu.output_file)+'.png',format='png')          

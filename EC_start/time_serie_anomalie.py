@@ -22,11 +22,11 @@ option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, undefined
+basin ='greenland_sea'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
-comparison = 'yes'
+comparison = 'no'
 y1_compa = 1950
 y2_compa = 2000
 

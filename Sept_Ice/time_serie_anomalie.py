@@ -17,11 +17,11 @@ import loading
 
 
 var = 'sal'			# sal, temp, IceC, ML
-option = 'Uncoupled'		# Coupled, Uncoupled
+option = 'Coupled'		# Coupled, Uncoupled
 y1 = 2000
 y2 = 2100
 
-basin ='section_ESS'		# arctic_ocean, BS_and_KS, undefined
+basin ='Siberian_seas'		# arctic_ocean, BS_and_KS, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 

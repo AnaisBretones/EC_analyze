@@ -13,18 +13,22 @@ import os
 import sys
 import numpy as np
 
-#import make_plot
+import make_plot
 import loading
-import gsw
+#import gsw
 
 var = 'AMOC'
 option = 'Coupled'
 y1 = 1950
 y2 = 2100
+basin = 'arctic_ocean' #'section_FS'
+lat_min = 66.34
 
 comparison = 'no'
 y1_compa = 1950
 y2_compa = 2000
+
+year = 2000
 
 
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -93,25 +97,9 @@ def V_zonal_mean_one_depth(xr,yr,depth,v):
      V[i] = np.nan
    return np.nansum(V)
 
+
+
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-year = 2000
-
-
-simu = From1950to2100(option,var,y1,y2,comparison) 
-yr, xr, time, depth = loading.extracting_coord(simu.path,'v')
-v = loading.extracting_var(simu.path, 'v')
-
-mask = loading.AtlOcean_mask(v[:,:,:,0],xr,yr)
-
-index_y = np.min(np.where(1950+time[:]/(3600*24*364.5)>year))
-ny = np.size(yr[0,:])
-nz = np.size(depth)
-VT = np.zeros((nz,ny))
-
-for j in range(0,ny):
-  for k in range(0,nz):
-     VT[k,j] = V_zonal_mean_one_depth(xr[:,j],yr[:,j],depth[k],v[:,j,k,index_y])
-
 def Meridional_section(var,yr,variable_name,z,zmax,year,option,vmin,vmax):
 
    i_zmax = np.max(np.where(z<zmax))
@@ -135,42 +123,32 @@ def Meridional_section(var,yr,variable_name,z,zmax,year,option,vmin,vmax):
    plt.close(fig)
    return
 
+
+simu = From1950to2100(option,var,y1,y2,comparison) 
+yr, xr, time, depth = loading.extracting_coord(simu.path,'v')
+v = loading.extracting_var(simu.path, 'v')
+
+print(yr)
+
+if basin =='undefined':
+   mask = loading.latitudinal_band_mask(yr,lat_min,90)
+else:
+   mask = loading.Ocean_mask(xr,yr,basin)
+   make_plot.points_on_map(xr,yr,var,basin)
+
+'''
+index_y = np.min(np.where(1950+time[:]/(3600*24*364.5)>year))
+ny = np.size(yr[0,:])
+nz = np.size(depth)
+VT = np.zeros((nz,ny))
+
+for j in range(0,ny):
+  for k in range(0,nz):
+     VT[k,j] = V_zonal_mean_one_depth(xr[:,j],yr[:,j],depth[k],v[:,j,k,index_y])
+
+
 name_outfile = 'MT'
 vmin = 50
 vmax = 30
 Meridional_section(VT,yr[0,:],'MT',depth,2000,year,name_outfile,vmin,vmax)
-
 '''
-index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
-index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
-
-# JUST ONE TIME SERIE PLOT
-if comparison == 'no':
-   make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],\
-                       depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax)
-else:
-   index_y1c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y1_compa))
-   index_y2c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y2_compa))
-   np.shape(mean_Arctic_simu[:,index_y1c:index_y2c])
-   ref = np.reshape( np.mean(mean_Arctic_simu[:,index_y1c:index_y2c],axis=1) ,[42,1])
-   make_plot.time_serie(mean_Arctic_simu[:,index_y1:index_y2]\
-                       - ref,var,\
-                       time[index_y1:index_y2],depth,simu.max_depth,simu.first_year,\
-                       simu.output_file,simu.vmin,simu.vmax)
-
-
-one_time, depth2, mean_Arctic_ref = time_serie_Arctic(simu.path_ref,var)
-
-nt = np.size(mean_Arctic_simu[0,:])
-nz = np.size(mean_Arctic_simu[:,0])
-
-anomaly = np.zeros((nz,nt)) 
-
-for z in range(0,nz):
-   anomaly[z,:] = mean_Arctic_simu[z,:] - mean_Arctic_ref[z,0]
-
-make_plot.time_serie(anomaly,var,time,depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax)
-
-#make_plot.plot_map(xr,yr,np.mean(T1[:,:,0,-11:-1],axis=2)-T2[:,:,0,0] ,var,'2090-2100','surface',option,'')
-#make_plot.vertical_profile(np.mean(T_mean_Arctic1,axis=1),'temp',month,depth,max_depth,year[k1],'')
-#make_plot.vertical_profile(np.mean(T_mean_Arctic2,axis=1),'temp',month,depth,max_depth,year[k2],'')'''

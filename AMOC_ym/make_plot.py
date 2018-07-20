@@ -19,6 +19,33 @@ import numpy as np
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
 
+def points_on_map(xr,yr,variable_name,ocean):
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=85, lat_1=89.99999, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+   m.drawparallels(np.linspace(0, 90, 10))
+   m.drawmeridians(np.linspace(-180, 180, 10))
+   # Add Colorbar
+   cs = m.scatter(x,y,marker='o', color='r',s=1)
+
+
+   plt.title(str(ocean.replace("_"," ")),size=20)
+   plt.savefig(str(variable_name)+'/domain_'+str(ocean)+'.png')
+   plt.close(fig)
+   return
+
+
+
 def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # map all Atlantic and Arctic Ocean
    # colorbar under the map: 

@@ -21,7 +21,7 @@ def Forder(var):
 
 def points_on_map(xr,yr,variable_name,ocean):
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.99999,lat_2=50,\
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
