@@ -184,6 +184,47 @@ def time_serie(var,variable_name,t,ML,z,zmax,year,option,vmin,vmax,ocean):
    return
 
 
+def time_serie_two_axis(var,variable_name,t,ice_ext,z,zmax,year,option,vmin,vmax,ocean):
+
+   i_zmax = np.max(np.where(z<zmax))
+
+   fig = plt.figure(figsize=(10,6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   ax1 = fig.add_subplot(111)
+   #fig, ax1 = plt.subplots()
+   if variable_name == 'temp':
+      mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)
+   elif variable_name == 'sal':
+      mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   plt.ylim([np.min(z),z[i_zmax]])
+   plt.ylabel(r'Depth (m)')
+   plt.gca().invert_yaxis()
+   cbar = fig.colorbar(mappable, pad=0.15)
+
+   if variable_name == 'temp':
+    cbar.set_label(r'Temperature ($^{o}$C)',fontsize=18)
+   elif variable_name == 'sal':
+    cbar.set_label(r'Salinity (PSU)',fontsize=18)
+   
+   ax2 = ax1.twinx()
+   ax2.plot(year+t/(24*3600*365.),ice_ext,linewidth=3,color="black")
+
+   plt.ylabel(r'Sea ice extent (m$^{2}$)',fontsize=18)
+   # rotate and align the tick labels so they look better
+   fig.autofmt_xdate()
+   #plt.xticks(tick_locs,tick_lbls)
+   plt.xlim([np.min(year+t[0]/(24*3600*365.)), np.max(year+t[-1]/(24*3600*365.)) ])
+   if ocean == 'undefined':
+      plt.title('Mean Arctic ($>$66.34$^{o}$N)')
+   else:
+      plt.title(str(ocean.replace("_"," ")),size=20)
+
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
+
 def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)

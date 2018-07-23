@@ -19,10 +19,10 @@ import loading
 
 var = 'temp'			# sal, temp, IceC, ML
 option = 'Uncoupled'		# Coupled, Uncoupled
-y1 = 2000
+y1 = 1950
 y2 = 2100
 
-basin ='greenland_sea'		# arctic_ocean, BS_and_KS, undefined
+basin ='BS_and_KS'		# arctic_ocean, BS_and_KS, greenland_sea, Siberian_seas, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -135,10 +135,12 @@ if var == 'IceC':
   time, mean_region_simu = time_serie_Arctic_2D(simu.path,var,lat_min,basin)
 else:
   time, depth, mean_region_simu = time_serie_Arctic(simu.path,var,lat_min,basin)
-  time, ML = time_serie_Arctic_2D(simu.path,'ML',lat_min,basin)
+  #time, ML = time_serie_Arctic_2D(simu.path,'ML',lat_min,basin)
+  sea_ice_extent = loading.extract_sea_ice_ext(y1,y2)
 
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
+
 
 # JUST ONE TIME SERIE PLOT
 if comparison == 'no':
@@ -146,7 +148,9 @@ if comparison == 'no':
      print('ok')
      make_plot.var_fc_time(mean_region_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file,basin)
    else:
-     make_plot.time_serie(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],ML[index_y1:index_y2],\
+     #make_plot.time_serie(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],ML[index_y1:index_y2],\
+     print(np.shape(sea_ice_extent), np.size(mean_region_simu[0,index_y1:index_y2]))
+     make_plot.time_serie_two_axis(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],sea_ice_extent,\
                        depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin)
 else:
    index_y1c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y1_compa))
