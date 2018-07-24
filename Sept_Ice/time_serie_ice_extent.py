@@ -28,7 +28,7 @@ lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
 comparison = 'no'
-y1_compa = 1950
+y1_compa = 2006
 y2_compa = 2000
 
 #if var == 'IceC':
@@ -177,7 +177,7 @@ var_fc_time(ice_extent[index_y1:index_y2+1],var,time[index_y1:index_y2+1],simu.f
 simu_2 = From1950to2100(option,var,y1,y2,comparison,lat_min,basin2,basin,month) 
 time, ice_extent2 = time_serie_sea_ice_ext(simu_2.path,var,lat_min,basin2)
 
-file = open('/media/fig010/LACIE SHARE/EC_Earth/EC_data/Septembre_Sea_ice_extent_'+str(y1)+'to'+str(y2)+'.txt','w')
+file = open('/media/fig010/LACIE SHARE/EC_Earth/EC_data/Septembre_Sea_ice_extent_'+str(y1)+'to'+str(y2)+'_'+str(option)+'.txt','w')
 for i in range(0,index_y2-index_y1+1):
     file.write(str(ice_extent2[index_y1+i])+'\n')
 file.close()

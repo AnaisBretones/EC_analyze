@@ -45,6 +45,8 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['soicecov'][:])
   elif variable_name =='rho':
     var = Forder(nc.variables['vosigma0'][:])
+  elif variable_name =='BruntVF':
+    var = Forder(nc.variables['vobn2'][:])
   nc.close()
   return var
 
@@ -128,9 +130,9 @@ def Ocean_mask(x,y,basin):
 
   return mask
 
-def extract_sea_ice_ext(y1,y2):
+def extract_sea_ice_ext(y1,y2,option):
 
-   txt_file = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Septembre_Sea_ice_extent_'+str(y1)+'to'+str(y2)+'.txt'
+   txt_file = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Septembre_Sea_ice_extent_'+str(y1)+'to'+str(y2)+'_'+str(option)+'.txt'
    ice_ext_array = np.zeros((y2-y1-1))
    with open(txt_file, "r") as f:
      tab = []

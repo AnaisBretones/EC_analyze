@@ -16,13 +16,13 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'ML'
-option = 'Coupled'
+var = 'BruntVF'
+option = 'Uncoupled'
 specificity = ''
-y1 = 2090
-y2 = 2100
+y1 = 1950
+y2 = 2020
 
-comparison = 'yes'
+comparison = 'no'
 
 title_plot =  str(specificity)+' '+str(y1)+' to '+str(y2)
 
@@ -43,7 +43,8 @@ class From1950to2100():                                                         
      elif compa == 'yes':
         self.output_file = str(var)+'_map_'+str(self.y1)+'to'\
                            +str(self.y2)+'AnoTo90s_'+str(option)                                #//
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc'
+     #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc'
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/bn2_'+str(option)+'.nc'
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -72,6 +73,9 @@ class From1950to2100():                                                         
       elif var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86                                                               #//
+      elif var == 'BruntVF':                                                               #//
+        self.vmin = -1100                                                              #//
+        self.vmax = -1000                                                             #//
 
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -113,8 +117,8 @@ if var == 'ML' or var == 'IceC':
 else:
   yr, xr, time, depth = loading.extracting_coord(simu.path)
 
-print(np.shape(time),np.shape(xr))
 VarArray_simu = loading.extracting_var(simu.path, var)
+print(np.shape(time),np.shape(xr),np.shape(VarArray_simu))
 
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
@@ -124,7 +128,9 @@ if comparison == 'no':
    if var == 'ML' or var == 'IceC':
      make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
    else:
-     make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,0,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+    print(np.max(VarArray_simu[:,:,0,index_y1]), np.min(VarArray_simu[:,:,0,index_y1])) 
+    make_plot.plot_map(xr,yr,VarArray_simu[:,:,0,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+
 elif comparison == 'yes':
    index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
    index_y2c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2_compa))

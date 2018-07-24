@@ -3,6 +3,7 @@ import mpl_toolkits
 from mpl_toolkits.basemap import Basemap
 from matplotlib.ticker import NullFormatter,MultipleLocator, FormatStrFormatter
 import matplotlib.gridspec as gridspec
+import matplotlib.colors as colors
 
 import scipy
 import netCDF4
@@ -21,7 +22,7 @@ def Forder(var):
 
 def points_on_map(xr,yr,variable_name,ocean):
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.99999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -197,15 +198,18 @@ def time_serie_two_axis(var,variable_name,t,ice_ext,z,zmax,year,option,vmin,vmax
       mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)
    elif variable_name == 'sal':
       mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   elif variable_name == 'BruntVF':
+      mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
    plt.ylim([np.min(z),z[i_zmax]])
    plt.ylabel(r'Depth (m)')
    plt.gca().invert_yaxis()
    cbar = fig.colorbar(mappable, pad=0.15)
-
    if variable_name == 'temp':
     cbar.set_label(r'Temperature ($^{o}$C)',fontsize=18)
    elif variable_name == 'sal':
     cbar.set_label(r'Salinity (PSU)',fontsize=18)
+   elif variable_name == 'BruntVF':
+    cbar.set_label(r'Brunt Vaisala frequency',fontsize=18)
    
    ax2 = ax1.twinx()
    ax2.plot(year+t/(24*3600*365.),ice_ext,linewidth=3,color="black")
