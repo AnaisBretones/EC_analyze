@@ -61,6 +61,8 @@ def extracting_coord(path,var):
   time = Forder(nc.variables['time_counter'][:])
   if var == 'v':
     depth = Forder(nc.variables['depthv'][:])
+  if var == 'u':
+    depth = Forder(nc.variables['depthu'][:])
   else:
     depth = Forder(nc.variables['deptht'][:])
 

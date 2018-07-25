@@ -16,10 +16,10 @@ import make_plot
 import loading
 
 
-var = 'temp'			# sal, temp, Uorth Utang density
+var = 'Uorth'			# sal, temp, Uorth Utang density
 option = 'Coupled'		# Coupled, Uncoupled
 
-y1 = 2000
+y1 = 2070
 y2 = 2100
 
 basin ='SiberianOrth'		# GSR, SiberianOrth
@@ -51,8 +51,8 @@ class From1950to2100():									#//
      elif compa == 'yes':
         self.output_file = str(var)+'Sept_TimeSerieAnomaly_'+str(sufix)
 
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/section_' \
-                  +str(basin)+'_'+str(option)+'.nc'  
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/section.nc'#_' \
+     #             +str(basin)+'_'+str(option)+'.nc'  
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -88,6 +88,9 @@ class From1950to2100():									#//
        elif var == 'density':                                                                #//
         self.vmin = 25.                                                               #//
         self.vmax = 28.                                                                 #//
+       elif var == 'Uorth':                                                                #//
+        self.vmin = -0.04                                                              #//
+        self.vmax = 0.018                                                                 #//
 
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -113,4 +116,4 @@ make_plot.points_on_map(xr,yr,var,basin)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 print(np.shape(VAR), np.shape(depth), np.shape(X))
-make_plot.one_sec(VAR[:,:,index_y1].transpose(),var,X,depth,simu.max_depth,y1,simu.output_file,simu.vmin,simu.vmax,basin)
+make_plot.one_sec(np.mean(VAR[:,:,index_y1:-1],axis=2).transpose(),var,X,depth,simu.max_depth,y1,simu.output_file,simu.vmin,simu.vmax,basin)

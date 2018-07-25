@@ -18,11 +18,11 @@ import loading
 
 
 var = 'IceC'			# sal, temp, IceC, ML
-option = 'Uncoupled'		# Coupled, Uncoupled
+option = 'Coupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2100
 month = 'Sept'                  #Sept or April
-basin ='undefined'		# arctic_ocean, BS_and_KS, undefined
+basin ='Siberian_seas'		# arctic_ocean, BS_and_KS, undefined
 basin2 = 'arctic_ocean'
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle

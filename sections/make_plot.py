@@ -255,6 +255,8 @@ def one_sec(var,variable_name,x,z,zmax,year,option,vmin,vmax,ocean):
     cbar.set_label(r'Salinity (PSU)',fontsize=18)
    elif variable_name == 'density':
     cbar.set_label(r'Density',fontsize=18)
+   elif variable_name == 'Uorth':
+    cbar.set_label(r'velocity ortho to the section (m/s)',fontsize=18)
 
    if ocean == 'undefined':
       plt.title('Arctic mediterranean seas ($>$66.34$^{o}$N)')
@@ -296,17 +298,20 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.close(fig)
   return
 
-def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
+def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean, zmax):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  plt.ylim([0.,0.75])
+  #plt.ylim([0.,0.75])
   if variable_name == 'IceC':
      plt.plot(first_year_file+t,var)
      plt.ylabel('Ice cover',fontsize=18)
+  elif variable_name == 'temp':
+     plt.plot(first_year_file+t,var)
+     plt.ylabel('Mean temperature 0-'+str(zmax)+'m',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
