@@ -16,8 +16,8 @@ import make_plot
 import loading
 
 
-var = 'Uorth'			# sal, temp, Uorth Utang density
-option = 'Coupled'		# Coupled, Uncoupled
+var = 'density'			# sal, temp, Uorth Utang density
+option = 'Uncoupled'		# Coupled, Uncoupled
 
 y1 = 2070
 y2 = 2100
@@ -44,15 +44,15 @@ class From1950to2100():									#//
      if basin == 'undefined':								#//
         sufix = str(self.y1)+'to'+str(self.y2)+'_'+str(lat_min)+'_'+str(option)
      else: 
-        sufix = str(self.y1)+'_'+str(basin)+'_'+str(option)
+        sufix = str(self.y1)+'_30ymean_'+str(basin)+'_'+str(option)
 
      if compa == 'no':									#//
         self.output_file = str(var)+'_'+str(sufix)
      elif compa == 'yes':
         self.output_file = str(var)+'Sept_TimeSerieAnomaly_'+str(sufix)
 
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/section.nc'#_' \
-     #             +str(basin)+'_'+str(option)+'.nc'  
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/section_' \
+                  +str(basin)+'_'+str(option)+'.nc'  
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -116,4 +116,4 @@ make_plot.points_on_map(xr,yr,var,basin)
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 print(np.shape(VAR), np.shape(depth), np.shape(X))
-make_plot.one_sec(np.mean(VAR[:,:,index_y1:-1],axis=2).transpose(),var,X,depth,simu.max_depth,y1,simu.output_file,simu.vmin,simu.vmax,basin)
+make_plot.one_sec(np.mean(VAR[:,:,index_y1:index_y1+29],axis=2).transpose(),var,X,depth,simu.max_depth,y1,simu.output_file,simu.vmin,simu.vmax,basin)

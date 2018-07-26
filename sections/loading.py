@@ -141,3 +141,19 @@ def Ocean_mask(x,y,basin):
 
   return mask
 
+def extract_sea_ice_ext(y1,y2,option):
+
+   txt_file = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Septembre_Sea_ice_extent_'+str(y1)+'to'+str(y2)+'_'+str(option)+'.txt'
+   ice_ext_array = np.zeros((y2-y1-1))
+   with open(txt_file, "r") as f:
+     tab = []
+
+     for line in range(0,y2-y1-1):
+         tab.append(f.readline().split())
+     print(tab)
+     ice_ext = np.array([float(x[0]) for x in tab])
+
+     for i in range(0,y2-y1-1):
+       ice_ext_array[i] = str(ice_ext[i])
+   return ice_ext_array
+

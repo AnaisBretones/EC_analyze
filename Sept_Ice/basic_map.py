@@ -17,14 +17,15 @@ import make_plot
 import loading
 
 var = 'IceC'
-option = 'Uncoupled'
+option = 'Coupled'
 specificity = ''
-y1 = 2046#+140
+y1 = 2020#+140
 y2 = y1+12
 
 month = 'Sept'
 comparison = 'yes'
 
+output_file = str(var)+str(month)+'_plaquette_'+str(y1)+'To'+str(y2)+'_'+str(option)                                #//
 
 #//////////////////////////////////////////////////////////////////////////////////////////
 class From1950to2100():                                                                 #//
@@ -37,7 +38,6 @@ class From1950to2100():                                                         
      self.y2 = y2                                                                       #//
      self.y1_compa = y1+1
      self.y2_compa = 2042
-     self.output_file = str(var)+str(month)+'_plaquette_'+str(self.y1)+'To'+str(self.y2)+'_'+str(option)                                #//
      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/'+str(month)+'_Ice_'+str(option)+'.nc'
 
      if compa == 'yes':
@@ -111,4 +111,4 @@ for i in range(1,13):
    cs = m.pcolor(x,y,array_to_plot,vmin=simu.vmin,vmax=simu.vmax)
    cs2=m.contour(x, y, VarArray_simu[:,:,index_y1], [0.15],colors='r')
    cs3=m.contour(x, y, VarArray_simu[:,:,index_y1c], [0.15],colors='b')
-plt.savefig(str(var)+'/'+str(simu.output_file)+'.png',format='png')          
+plt.savefig(str(var)+'/'+str(output_file)+'.png',format='png')          

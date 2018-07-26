@@ -108,10 +108,15 @@ def time_serie_Arctic_2D(path,var,lat_min,basin):
 simu = From1950to2100(option,var,y1,y2,comparison,basin) 
 time, depth, mean_Arctic_simu = time_serie_Arctic(simu.path,var)
 
+sea_ice_extent = loading.extract_sea_ice_ext(y1,y2,option)
 
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
 index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
 print(mean_Arctic_simu[index_y1:index_y2])
 # JUST ONE TIME SERIE PLOT
-make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, 0,simu.output_file,basin,simu.zmax)
+#make_plot.var_fc_time(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, 0,simu.output_file,basin,simu.zmax)
+
+make_plot.var_fc_time_two_axis(mean_Arctic_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year,sea_ice_extent,\
+                       depth,simu.zmax,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin,simu.output_file)
+

@@ -320,6 +320,29 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean, 
   plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
   return
 
+def var_fc_time_two_axis(var,variable_name,t,first_year_file, ice_ext,z,zmax,year,option,vmin,vmax,ocean,name_outfile):
+  fig = plt.figure(figsize=(10,6))
+  plt.rc('text', usetex=True)
+  plt.rc('font', family='serif')
+  ax1 = fig.add_subplot(111)
+  t = t/(3600*24*365.)
+  plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
+  #plt.ylim([0.,0.75])
+  if variable_name == 'IceC':
+     ax1.plot(first_year_file+t,var)
+     plt.ylabel('Ice cover',fontsize=18)
+  elif variable_name == 'temp':
+     ax1.plot(first_year_file+t,var)
+     plt.ylabel('Mean temperature 0-'+str(zmax)+'m',fontsize=18)
+
+  ax2 = ax1.twinx()
+  ax2.plot(first_year_file+t,ice_ext,linewidth=0.5,color="black")
+  plt.ylabel(r'Sea ice extent (m$^{2}$)',fontsize=18)
+
+  plt.xlabel('time',fontsize=18)
+  plt.title(str(ocean.replace("_"," ")),size=20)
+  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
+  return
 
 
 

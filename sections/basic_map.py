@@ -16,7 +16,7 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'Uorth'		#sal, temp, density, Uorth
+var = 'density'		#sal, temp, density, Uorth
 option = 'Coupled'
 specificity = ''
 y1 = 2040#+140
