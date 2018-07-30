@@ -19,10 +19,10 @@ import loading
 
 var = 'BruntVF'			# sal, temp, IceC, ML, BruntVF vobn2
 option = 'Coupled'		# Coupled, Uncoupled
-y1 = 2006
-y2 = 2100
+y1 = 1950
+y2 = 2300
 
-basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, greenland_sea, Siberian_seas, undefined
+basin ='BS_and_KS'		# arctic_ocean, BS_and_KS, greenland_sea, Siberian_seas, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -53,7 +53,7 @@ class From1950to2100():									#//
      elif compa == 'yes':
         self.output_file = str(var)+'_TimeSerieAnomaly_'+str(sufix)
 
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/T_Coupledbn_arctic.nc'#EC_start_'+str(option)+'3.nc' 
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section2300/Tbn2'+str(option)+'_arctic.nc' 
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -71,7 +71,7 @@ class From1950to2100():									#//
        elif var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86	                                                        #//
-      elif y1>2007:
+      elif y1>1999:
        if var == 'temp':                                                                #//
         self.vmin = -0.9                                                                #//
         self.vmax = 2.8                                                                 #//
@@ -86,8 +86,8 @@ class From1950to2100():									#//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86	                                                        #//
        elif var == 'BruntVF':                                                               #//
-        self.vmin = -1.8                                                              #//
-        self.vmax = 0.00012	                                                        #//
+        self.vmin = -100                                                              #//
+        self.vmax = 5	                                                        #//
 
      return										#//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +97,11 @@ def time_serie_Arctic(path,var,lat_min,basin):
   yr, xr, time, depth = loading.extracting_coord(path)
   TorS = loading.extracting_var(path, var)
   print(np.shape(TorS))
-  S = loading.extracting_var(path,'sal')
-  TorS[np.where( S==0. )] = np.nan
+  if var == 'sal':
+     TorS[np.where( TorS==0. )] = np.nan
+  else:
+     S = loading.extracting_var(path,'sal')
+     TorS[np.where( S==0. )] = np.nan
 
   if basin =='undefined':
      mask = loading.latitudinal_band_mask(yr,lat_min,90)
@@ -150,13 +153,15 @@ if comparison == 'no':
    if var == 'IceC':
      print('ok')
      make_plot.var_fc_time(mean_region_simu[index_y1:index_y2],var,time[index_y1:index_y2],simu.first_year, lat_min,simu.output_file,basin)
+   elif var == 'BruntVF':
+     mean_region_simu[np.where(mean_region_simu < -0.1)] = np.nan
+     make_plot.time_serie_two_axis(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],sea_ice_extent,\
+                       depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin)
    else:
      #make_plot.time_serie(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],ML[index_y1:index_y2],\
      #print(np.shape(sea_ice_extent), np.size(mean_region_simu[0,index_y1:index_y2]))
-     mean_region_simu[np.where(mean_region_simu <-0.1)] = np.nan
-     print(np.shape(sea_ice_extent), np.shape(time[index_y1:index_y2-1]))
      make_plot.time_serie_two_axis(mean_region_simu[:,index_y1:index_y2],var,time[index_y1:index_y2],sea_ice_extent,\
-                       depth,simu.max_depth,simu.first_year,simu.output_file,np.nanmin(mean_region_simu[:,index_y1:index_y2-1]),np.nanmax(mean_region_simu[:,index_y1:index_y2-1]),basin)
+                       depth,simu.max_depth,simu.first_year,simu.output_file,simu.vmin,simu.vmax,basin)
 else:
    index_y1c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y1_compa))
    index_y2c =np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y2_compa))

@@ -102,10 +102,7 @@ def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name
    elif variable_name == 'density':
      plt.xlabel(r'Density')
    plt.xlim([vmin,vmax])
-   if ocean == 'BS_and_KS':
-      plt.ylim([420,0])
-   else:
-      plt.ylim([z[i_zmax],0])
+   plt.ylim([z[i_zmax],0])
    plt.title(str(ocean.replace("_"," ")))
    if ocean == 'undefined':
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
@@ -146,6 +143,40 @@ def vertical_profile3(var1,var2,var3,y1,y2,variable_name,vmin,vmax,z,zmax,ocean,
    else:
       plt.title(str(ocean.replace("_"," ")))
    plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
+def one_sec(var,variable_name,x,z,zmax,year,option,vmin,vmax,ocean):
+
+   i_zmax = np.max(np.where(z<zmax))
+
+   plt.figure(figsize=(10,6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+   plt.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+
+   plt.ylim([np.min(z),z[i_zmax]])
+   plt.ylabel(r'Depth (m)')
+   plt.gca().invert_yaxis()
+   #plt.xticks(tick_locs,tick_lbls)
+   cbar = plt.colorbar()
+   cbar.ax.get_yaxis().labelpad = 15
+   if variable_name == 'temp':
+    cbar.set_label(r'Temperature ($^{o}$C)',fontsize=18)
+   elif variable_name == 'sal':
+    cbar.set_label(r'Salinity (PSU)',fontsize=18)
+   elif variable_name == 'density':
+    cbar.set_label(r'Density',fontsize=18)
+   elif variable_name == 'Uorth':
+    cbar.set_label(r'velocity ortho to the section (cm/s)',fontsize=18)
+
+   if ocean == 'undefined':
+      plt.title('Arctic mediterranean seas ($>$66.34$^{o}$N)')
+   else:
+      plt.title(str(ocean.replace("_"," ")),size=20)
+
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
    plt.close(fig)
    return
 
@@ -203,10 +234,10 @@ def time_serie_two_axis(var,variable_name,t,ice_ext,z,zmax,year,option,vmin,vmax
       mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
    elif variable_name == 'BruntVF':
       mappable = ax1.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40)#,vmin=31.76,vmax=34.02)
-   if ocean == 'BS_and_KS':
-      plt.ylim([np.min(z),420])
+   if ocean =='BS_and_KS':
+     plt.ylim([np.min(z),430])
    else:
-      plt.ylim([np.min(z),z[i_zmax]])
+     plt.ylim([np.min(z),z[i_zmax]])
    plt.ylabel(r'Depth (m)')
    plt.gca().invert_yaxis()
    cbar = fig.colorbar(mappable, pad=0.15)
@@ -217,11 +248,12 @@ def time_serie_two_axis(var,variable_name,t,ice_ext,z,zmax,year,option,vmin,vmax
    elif variable_name == 'BruntVF':
     cbar.set_label(r'Brunt Vaisala frequency',fontsize=18)
     cbar.formatter.set_powerlimits((0, 0))
-    cbar.update_ticks()   
+    cbar.update_ticks()
+   
    ax2 = ax1.twinx()
-   ax2.plot(year+t/(24*3600*365.),ice_ext,linewidth=3,color="black")
+   ax2.plot(year+t/(24*3600*365.),ice_ext,linewidth=1.5,color="black")
 
-   plt.ylabel(r'Sea ice extent (m$^{2}$)',fontsize=18)
+   plt.ylabel(r'March sea ice extent (m$^{2}$)',fontsize=18)
    # rotate and align the tick labels so they look better
    fig.autofmt_xdate()
    #plt.xticks(tick_locs,tick_lbls)
