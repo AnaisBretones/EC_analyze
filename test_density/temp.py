@@ -44,8 +44,7 @@ class yearly_LongPeriod():                                                      
   def __init__(self, option, var):                                                      #//
       self.first_year = 1950                                                            #//
       self.last_year = 2100
-      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'\
-                  +str(option)+'.nc'                                                    #//
+      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/density/rcp8.5_PISM_2300_yearly.nc'
       self.max_depth = 1000                                                             #//
       if var == 'temp':                                                                 #//
         self.vmin = -5                                                                  #//
@@ -108,25 +107,23 @@ nz = np.size(VarArray_simuT[0,0,:,0])
 
 SA = np.zeros((ni,nj,nz))
 CT = np.zeros((ni,nj,nz))
-rho_ref = np.zeros((ni,nj,nz))
+CT_freezing = np.zeros((ni,nj,nz))
 
-
-index_y = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>year))
-
+print(np.shape(VarArray_simuT))
 
 k=0
 for i in range(0,ni):
   for j in range(0,nj):
     # if we are on the mask (S=0,T=0) 
-    if VarArray_simuS[i,j,0,0] == 0 or VarArray_simuT[i,j,0,0] == 0:
-       rho_ref[i,j,:] = np.nan
+    if VarArray_simuS[i,j,0] == 0 or VarArray_simuT[i,j,0] == 0:
+      CT_freezing[i,j,:] = np.nan
     else:
       p = gsw.p_from_z(-depth,yr[i,j])
-      SA[i,j,:] = VarArray_simuS[i,j,:,index_y]#gsw.SA_from_SP(VarArray_simuS[i,j,:,index_y],p,xr[i,j],yr[i,j]) #VarArray_simuS[i,j,:,0]
-      CT[i,j,:] = gsw.CT_from_t(SA[i,j],VarArray_simuT[i,j,:,index_y],p) #VarArray_simuT[i,j,:,0]
-      #rho_ref[i,j,:] = gsw.rho(VarArray_simuS[i,j,:,index_y],VarArray_simuT[i,j,:,index_y],0) 
-      rho_ref[i,j,:] = gsw.rho(SA[i,j,:],CT[i,j,:],0)
-      rho_ref[i,j,np.where(rho_ref[i,j,:]<1000)]=np.nan
+      SA[i,j,:] = gsw.SA_from_SP(VarArray_simuS[i,j,:,0],p,xr[i,j],yr[i,j]) #VarArray_simuS[i,j,:,0]
+      CT[i,j,:] = VarArray_simuT[i,j,:,0]
+      #CT[i,j,:] = gsw.CT_from_t(SA[i,j],VarArray_simuT[i,j,:,0],p) #VarArray_simuT[i,j,:,0]
+      CT_freezing[i,j,:] = gsw.CT_freezing(SA[i,j,:],p,0)
+print(np.shape(CT_freezing),np.nanmin(CT_freezing),np.shape(CT))
 
 def vertical_profile(var,variable_name,z,zmax,name_file,option):
 
@@ -137,19 +134,20 @@ def vertical_profile(var,variable_name,z,zmax,name_file,option):
    plt.plot(var[0:i_zmax+1],z[0:i_zmax+1])
    plt.gca().invert_yaxis()
    plt.ylabel(r'Depth (m)')
-   if variable_name == 'temp':
+   if variable_name == 'temp' or variable_name == 'tempF':
      plt.xlabel(r'Temperature ($^{o}$C)')
    elif variable_name == 'density':
      plt.xlabel(r'Density')
-   plt.xlim([1024.5,1028])
+   plt.xlim([-3,10])
    plt.ylim([450,0])
    plt.title(str(option))
    plt.savefig(str(variable_name)+'/'+str(name_file)+'.png')
    plt.close(fig)
    return
 
-name_file = 'density_profile_changeS'+str(year)
-vertical_profile(np.nanmean(rho_ref,axis=(0,1)),'density',depth,2000,name_file,'Arctic')
-
+name_file = 'CT_profile_changeS'+str(year)
+#vertical_profile(np.nanmean(CT-CT_freezing,axis=(0,1)),'temp',depth,2000,name_file,'Arctic')
+#vertical_profile(np.nanmean(CT,axis=(0,1))-np.nanmean(CT_freezing,axis=(0,1)),'temp',depth,2000,name_file,'Arctic')
+vertical_profile(np.nanmean(CT,axis=(0,1)),'temp',depth,2000,name_file,'Arctic')
 
 

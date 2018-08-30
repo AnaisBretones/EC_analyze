@@ -47,12 +47,6 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['vosigma0'][:])
   elif variable_name =='BruntVF':
     var = Forder(nc.variables['vobn2'][:])
-  elif variable_name =='sovitua':
-    varp = Forder(nc.variables['sovitua'][:])
-    var = varp[:,:,0,:]
-  elif variable_name =='sovitva':
-    varp = Forder(nc.variables['sovitva'][:])
-    var = varp[:,:,0,:]
   nc.close()
   return var
 

@@ -54,7 +54,7 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    # year: age of the data
    # time: month? yearly mean? 
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=90, lat_1=89.999999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -87,6 +87,40 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    plt.close(fig)
    return
 
+def map_velocity(xr,yr,u,v,variable_name,title,option,name_file):
+   # map all Atlantic and Arctic Ocean
+   # colorbar under the map: 
+   # Ice thickness, Temperature or Salinity
+   # year: age of the data
+   # time: month? yearly mean? 
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=90, lat_1=89.999, lat_2=50,
+            width=0.4E7, height=0.4E7)
+ 
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+
+   yy = np.arange(0, y.shape[0], 4)
+   xx = np.arange(0, x.shape[1], 4)
+
+   points = np.meshgrid(yy, xx)
+   speed = np.sqrt(u**2 + v**2)
+   m.quiver(x[points], y[points],\
+    u[points], v[points], speed[points],\
+    cmap=plt.cm.autumn, scale=1)
+
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
+   
 def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
 
    i_zmax = np.max(np.where(z<zmax))

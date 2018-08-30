@@ -17,12 +17,12 @@ import make_plot
 import loading
 
 
-var = 'BruntVF'			# sal, temp, IceC, ML, BruntVF vobn2
+var = 'temp'			# sal, temp, IceC, ML, BruntVF vobn2
 option = 'Coupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2300
 
-basin ='BS_and_KS'		# arctic_ocean, BS_and_KS, greenland_sea, Siberian_seas, undefined
+basin ='arctic_ocean'		# arctic_ocean, BS_and_KS, greenland_sea, Siberian_seas, undefined
 lat_min = 66.34 		#IF basin = 'undefined'
                                 #ex: 66.34 for polar circle
 
@@ -73,8 +73,8 @@ class From1950to2100():									#//
         self.vmax = 34.86	                                                        #//
       elif y1>1999:
        if var == 'temp':                                                                #//
-        self.vmin = -0.9                                                                #//
-        self.vmax = 2.8                                                                 #//
+        self.vmin = -1.5#-0.9                                                                #//
+        self.vmax = 8#2.8                                                                 #//
        elif var == 'sal':                                                               #//
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86	                                                        #//

@@ -51,8 +51,7 @@ class yearly_LongPeriod():                                                      
   def __init__(self, option, var,y1,y2,basin,lat_min):                                                      #//
       self.first_year = 1950                                                            #//
       self.last_year = 2100
-      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/sig0_'\
-                  +str(option)+'.nc'                                                    #//
+      self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/density/sig0.nc'
       if basin == 'undefined':                                                           #//
         sufix = str(lat_min)+'_'+str(option)
       else:
@@ -68,8 +67,8 @@ class yearly_LongPeriod():                                                      
         self.vmin = 31.92                                                               #//
         self.vmax = 34.86                                                               #//
       elif var == 'density':
-        self.vmin = 25
-        self.vmax = 28.1
+        self.vmin = 22
+        self.vmax = 27
       self.output_file =  str(var)+'_yearmean'+str(self.y1)+'_'+str(sufix)
       self.output_file2 =  str(var)+'_'+str(self.y1)+'_'+str(self.y2)+'mean_'+str(sufix)
                                                                                         #//
@@ -84,35 +83,14 @@ simu = yearly_LongPeriod(option,var,y1,y2,basin,lat_min)
 yr, xr, time, depth = loading.extracting_coord(simu.path)
 
 VarArray_simuRho = loading.extracting_var(simu.path, 'rho')   # Practical Salinity
-index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
-index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>y2))
 
-
-
-if basin =='undefined':
-   mask = loading.latitudinal_band_mask(yr,lat_min,90)
-else:
-   mask = loading.Ocean_mask(xr,yr,basin)
-   make_plot.points_on_map(xr[mask],yr[mask],var,basin)
-
-
+print(np.shape(VarArray_simuRho))
 VarArray_simuRho[np.where(VarArray_simuRho==0)] = np.nan
-region = VarArray_simuRho[mask,:,:]
-print(np.shape(region))
-mean_region = np.nanmean(region,axis=0)
+MEAN = np.nanmean(np.nanmean(VarArray_simuRho[:,:,:,0],axis=0),axis=0)
+print(MEAN)
+make_plot.vertical_profile(MEAN,MEAN,var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file)
 
-
-make_plot.vertical_profile(mean_region[:,index_y1],mean_region[:,index_y2],var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file)
-
-MEAN = np.zeros_like((mean_region[:,0]))
-MEAN2 = np.zeros_like((mean_region[:,0]))
-sig = np.zeros_like(mean_region[:,0])
-
-MEAN = np.nanmean(mean_region,axis=1)
-MEAN2 = np.nanmean(mean_region**2,axis=1)
-#for i in range(0,np.size(MEAN2[0,:])):
-sig = np.sqrt(MEAN2-MEAN**2)
-
+sig=0.1
 make_plot.vertical_profile3(MEAN,MEAN-sig,MEAN+sig,y1,y2,var,simu.vmin,simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_file2)
                                                                                                                                        
 

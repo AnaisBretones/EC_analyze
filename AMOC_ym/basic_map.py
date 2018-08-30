@@ -16,11 +16,11 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'psi'
+var = 'u'
 option = 'Coupled'
 specificity = ''
-y1 = 2040
-y2 = 2100
+y1 = 2000
+y2 = 2030
 
 comparison = 'no'
 
@@ -39,12 +39,13 @@ class From1950to2100():                                                         
      self.y2_compa = 2000
      if compa == 'no':                                                                  #//
         self.output_file = str(var)+str(specificity)+'_map_'+str(self.y1)+'to'\
-                           +str(self.y2)+'_'+str(option)                                #//
+                           +str(self.y2)+'_'+str(option)+'_mod'                                #//
      elif compa == 'yes':
         self.output_file = str(var)+'_map_'+str(self.y1)+'to'\
                            +str(self.y2)+'AnoTo90s_'+str(option)                                #//
      #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/EC_start_'+str(option)+'.nc'
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/psi.nc'#U_'+str(option)+'.nc'
+     #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/psi.nc'#U_'+str(option)+'.nc'
+     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/section/U_'+str(option)+'.nc'
 
      if compa == 'yes':
       if var == 'temp':                                                                 #//
@@ -76,6 +77,9 @@ class From1950to2100():                                                         
       elif var == 'BruntVF':                                                               #//
         self.vmin = -1100                                                              #//
         self.vmax = -1000                                                             #//
+      elif var == 'u':
+        self.vmin = -0.024
+        self.vmax = 0.024
       else:
         self.vmin = -0.4*1E7#-0.025
         self.vmax = 0.4*1E7#0.025
@@ -110,7 +114,7 @@ class yearly1950to2100():                                                       
 #//////////////////////////////////////////////////////////////////////////////////////////
 
 
-'''
+
 #months = ['jan','feb','mars','apr','mai','june','july','aug','sept','oct','nov','dec']
 #i_month = months.index(month)
 
@@ -131,8 +135,12 @@ if comparison == 'no':
    if var == 'ML' or var == 'IceC':
      make_plot.plot_map(xr,yr,np.mean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2) ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
    else:
-    print(np.max(VarArray_simu[:,:,index_y1]), np.min(VarArray_simu[:,:,index_y1])) 
-    make_plot.plot_map(xr,yr,VarArray_simu[:,:,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
+    print(np.max(VarArray_simu[:,:,0,index_y1]), np.min(VarArray_simu[:,:,0,index_y1])) 
+    mask = (xr>85) | (xr<-105)
+    print( mask)
+    VarArray_simu[mask,:,:]=-VarArray_simu[mask,:,:]
+
+    make_plot.plot_map(xr,yr,VarArray_simu[:,:,0,index_y1] ,var,title_plot,simu.output_file,simu.vmin,simu.vmax)
 
 elif comparison == 'yes':
    index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
@@ -180,4 +188,4 @@ for i in range(1,13):
 
    cs = m.pcolor(x,y,array_to_plot,vmin=simu.vmin,vmax=simu.vmax)
 plt.savefig(str(var)+'/'+str(output_file)+'.png',format='png')          
-          
+'''          
