@@ -17,8 +17,8 @@ import make_plot
 import loading
 
 
-var = 'MeltedIce'			# sal, runoff, albedo, downHF
-option = 'Coupled'		# Coupled, Uncoupled
+var = 'runoff'			# sal, runoff, albedo, downHF
+option = 'Uncoupled'		# Coupled, Uncoupled
 y1 = 1950
 y2 = 2100
 
@@ -106,21 +106,23 @@ def time_serie_Arctic(path,var,lat_min,basin):
   return time, depth, mean_Arctic
 
 
-def time_serie_Arctic_2D(path,var,lat_min,basin):
+def time_serie_Arctic_2D(path,var_name,lat_min,basin):
   yr, xr, time = loading.extracting_coord_2D(path)
-  ice = loading.extracting_var(path, var)
-  print(np.max(ice),np.min(ice))
+  VAR = loading.extracting_var(path, var_name)
   S = loading.extracting_var(path,'sal')
-  ice[np.where( S[:,:,0,:]==0. )] = np.nan
+  VAR[np.where( S[:,:,0,:]==0. )] = 0#np.nan
+  print(np.max(VAR),np.min(VAR))
+  VAR[np.where(VAR>1E10)]=0#np.nan
+  print(np.max(VAR),np.min(VAR))
 
   if basin =='undefined':
      mask = loading.latitudinal_band_mask(yr,lat_min,90)
   else:
      mask = loading.Ocean_mask(xr,yr,basin)
-     make_plot.points_on_map(xr[mask],yr[mask],var,basin)
+     make_plot.points_on_map(xr[mask],yr[mask],var_name,basin)
 
-  arctic = ice[mask,:]
-  arctic[np.where(arctic==0)]=np.nan
+  VAR[np.where(VAR==0)]=np.nan
+  arctic = VAR[mask,:]
   mean_Arctic = np.nansum(arctic,axis=0)
   return time, mean_Arctic
 

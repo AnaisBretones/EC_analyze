@@ -86,6 +86,30 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   return
 
 
+def time_serie_Arctic_2D(path,var_name,lat_min,basin):
+  yr, xr, time = loading.extracting_coord_2D(path)
+  VAR = loading.extracting_var(path, var_name)
+  S = loading.extracting_var(path,'sal')
+  VAR[np.where( S[:,:,0,:]==0. )] = 0#np.nan
+  VAR[np.where(VAR>1E10)]=0#np.nan
+
+  if basin =='undefined':
+     mask = loading.latitudinal_band_mask(yr,lat_min,90)
+  else:
+     mask = loading.Ocean_mask(xr,yr,basin)
+
+  VAR[np.where(VAR==0)]=np.nan
+
+  area = size_each_bins(xr,yr)
+
+  FWF = area[mask]*VAR[mask,:].transpose(1, 0)*1E6
+  mean_FWF = np.nansum(FWF,axis=1)
+
+
+  return time, mean_FWF
+
+
+
 def time_serie(path,var,lat_min,basin):
   yr, xr, time = loading.extracting_coord_2D(path)
   melted_ice = loading.extracting_var(path, var)
@@ -143,13 +167,6 @@ def size_bin(x0, x1, x2, y0, y1, y2):
 def size_each_bins(xr,yr):
 
   area = np.zeros_like((xr))
-  '''for j in range(1,np.size(xr[0,:])-1):
-    area[0,j] = size_bin(xr[-1,j], xr[0,j], xr[1,j], yr[0,j-1], yr[0,j], yr[0,j+1])
-    area[-1,j] = size_bin(xr[-2,j], xr[-1,j], xr[0,j], yr[-1,j-1], yr[-1,j], yr[-1,j+1])
-  
-  for i in range(1,np.size(xr[:,0])-1):
-    area[i,0] = size_bin(xr[i-1,0], xr[i,0], xr[i+1,0], yr[i,0], yr[i,0], yr[i,1])
-    area[i,-1] = size_bin(xr[i-1,-1], xr[i,-1], xr[i+1,-1], yr[i,-2], yr[i,-1], yr[i,-1])'''
   for i in range(1,np.size(xr[:,0])-1):
     for j in range(1,np.size(xr[0,:])-1):
       area[i,j] = size_bin(xr[i-1,j], xr[i,j], xr[i+1,j], yr[i,j-1], yr[i,j], yr[i,j+1])
@@ -158,10 +175,10 @@ def size_each_bins(xr,yr):
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 simu = From1950to2100(option,var,y1,y2,comparison,lat_min,basin,month) 
-time, FWF_region = time_serie(simu.path,var,lat_min,basin)
+time, FWF_region = time_serie_Arctic_2D(simu.path,var,lat_min,basin)
 
 simu_c = From1950to2100('Coupled',var,y1,y2,comparison,lat_min,basin,month) 
-time, FWF_region_c = time_serie(simu_c.path,var,lat_min,basin)
+time, FWF_region_c = time_serie_Arctic_2D(simu_c.path,var,lat_min,basin)
 
 
 index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))

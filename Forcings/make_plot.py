@@ -203,8 +203,8 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   if variable_name == 'IceC':
      plt.ylabel('Ice cover',fontsize=18)
   plt.xlabel('time',fontsize=18)
-  plt.title('basins')
-  plt.savefig(str(variable_name)+'/all_basins.png')
+  plt.title(str(ocean.replace("_"," ")))
+  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
   return
 
 

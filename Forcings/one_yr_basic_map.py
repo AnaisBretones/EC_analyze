@@ -16,11 +16,11 @@ import numpy as np
 import make_plot
 import loading
 
-var = 'MeltedIce'		#sal, runoff, albedo, downHF
-option = 'Uncoupled'
+var = 'runoff'		#sal, runoff, albedo, downHF
+option = 'Coupled'
 specificity = ''
-y1 = 2000
-y2 = 2100
+y1 = 2090
+y2 = 2090
 control = 'Uncoupled'   # Uncoupled or historic
 
 comparison = 'yes'
@@ -44,7 +44,10 @@ class From1950to2100():                                                         
      elif compa == 'yes':
         self.output_file = str(var)+'_map_'+str(self.y1)+'to'\
                            +str(self.y2)                                #//
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_'+str(option)+'.nc'
+     if option=='Coupled':
+       self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/rcp8.5_PISM_2090_jan.nc'
+     else:
+       self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/DR8n01_2090_jan.nc'
      
 
      if compa == 'yes':
@@ -61,8 +64,8 @@ class From1950to2100():                                                         
         self.vmin = -1E20
         self.vmax = 1E20
       elif var == 'MeltedIce':
-        self.vmin = -0.5*1E-5                                                                   #//
-        self.vmax = 0.5*1E-4                                                                #//
+        self.vmin = -2*1E-5                                                                   #//
+        self.vmax = 2E-5                                                                #//
 
      elif compa =='no':
        if var == 'sal':                                                               #//
@@ -78,8 +81,8 @@ class From1950to2100():                                                         
         self.vmin = 0                                                                   #//
         self.vmax = 10 
        elif var == 'MeltedIce':
-        self.vmin = -2*1E-4                                                                   #//
-        self.vmax = 1.5*1E-4                                                                  #//
+        self.vmin = -2*1E-5                                                                   #//
+        self.vmax = 1E-4                                                                  #//
 
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -95,13 +98,13 @@ else:
 
 
 VarArray_simu = loading.extracting_var(simu.path, var)
-index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
-index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
+#index_y1 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1))
+#index_y2 = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y2))
 
 
 if comparison == 'no':
-   array_to_plot = np.nanmean(VarArray_simu[:,:,index_y1:index_y2+1],axis=2)
-   array_to_plot[np.where(array_to_plot>1E10)]=0#np.nan
+   array_to_plot = VarArray_simu[:,:,0]
+   array_to_plot[np.where(array_to_plot>1E20)]=0#np.nan
 
    array_to_plot[array_to_plot==0] = np.nan
    array_to_plot = np.ma.masked_invalid(array_to_plot)
@@ -109,18 +112,17 @@ if comparison == 'no':
 
 elif comparison == 'yes':
    if control == 'Uncoupled':
-     path2 = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/Forcings_Coupled.nc'
-     Coupled_array = loading.extracting_var(path2, var)
+     path2 = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/DR8n01_2090_jan.nc'
+     Uncoupled_array = loading.extracting_var(path2, var)
      out = str(simu.output_file)+'C-UC'
 
-     array_C = Coupled_array[:,:,index_y1:index_y2+1]
-     array_C[np.where(array_C>1E20)]=0#np.nan
-     array_UC = VarArray_simu[:,:,index_y1:index_y2+1]
+     array_UC = Uncoupled_array[:,:,0]
      array_UC[np.where(array_UC>1E20)]=0#np.nan
+     array_C = VarArray_simu[:,:,0]
+     array_C[np.where(array_C>1E20)]=0#np.nan
 
      array_to_plot = array_C-array_UC
      array_to_plot[array_to_plot==0] = np.nan
-     array_to_plot = np.nanmean(array_to_plot,axis=2)
    else: 
      out = str(simu.output_file)+'AnoTo90s_'+str(option)
      index_y1c = np.min(np.where(simu.first_year+time[:]/(3600*24*364.5)>simu.y1_compa))
