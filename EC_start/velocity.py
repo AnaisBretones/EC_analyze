@@ -19,8 +19,8 @@ import loading
 var = 'velocity'
 option = 'Coupled'
 specificity = ''
-y1 = 2070
-y2 = 2100
+y1 = 2010
+y2 = y1+10
 
 comparison = 'no'
 

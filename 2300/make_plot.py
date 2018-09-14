@@ -87,6 +87,41 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    plt.close(fig)
    return
 
+def map_velocity(xr,yr,u,v,variable_name,title,option,name_file):
+   # map all Atlantic and Arctic Ocean
+   # colorbar under the map: 
+   # Ice thickness, Temperature or Salinity
+   # year: age of the data
+   # time: month? yearly mean? 
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=90, lat_1=89.999, lat_2=50,
+            width=0.4E7, height=0.4E7)
+
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+
+   yy = np.arange(0, y.shape[0], 4)
+   xx = np.arange(0, x.shape[1], 4)
+
+   points = np.meshgrid(yy, xx)
+   speed = np.sqrt(u**2 + v**2)
+   m.quiver(x[points], y[points],\
+    u[points], v[points], speed[points],\
+    cmap=plt.cm.autumn, scale=1)
+
+   plt.title(str(title))
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
+
 def vertical_profile(var1,var2,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
 
    i_zmax = np.max(np.where(z<zmax))
@@ -180,6 +215,59 @@ def one_sec(var,variable_name,x,z,zmax,year,option,vmin,vmax,ocean):
    plt.close(fig)
    return
 
+def adjustFigAspect(fig,aspect=1):
+    '''
+    Adjust the subplot parameters so that the figure has the correct
+    aspect ratio.
+    '''
+    xsize,ysize = fig.get_size_inches()
+    minsize = min(xsize,ysize)
+    xlim = .4*minsize/xsize
+    ylim = .4*minsize/ysize
+    if aspect < 1:
+        xlim *= aspect
+    else:
+        ylim /= aspect
+    fig.subplots_adjust(left=.5-xlim,
+                        right=.5+xlim,
+                        bottom=.5-ylim,
+                        top=.5+ylim)
+
+
+def one_sec_greenwich(varW,varE,variable_name,xW,xE,z,zmax,year,option,vmin,vmax,ocean):
+
+   i_zmax = np.max(np.where(z<zmax))
+
+   fig=plt.figure(figsize=(10,10))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+   plt.contourf(xW,z[0:i_zmax+1],varW[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   plt.contourf(np.max(xW)+xE,z[0:i_zmax+1],varE[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   plt.ylim([np.min(z),z[i_zmax]])
+   plt.ylabel(r'Depth (m)')
+   plt.gca().invert_yaxis()
+   #plt.xticks(tick_locs,tick_lbls)
+   cbar = plt.colorbar()
+   cbar.ax.get_yaxis().labelpad = 10
+   if variable_name == 'temp':
+    cbar.set_label(r'Temperature ($^{o}$C)',fontsize=10)
+   elif variable_name == 'sal':
+    cbar.set_label(r'Salinity (PSU)',fontsize=10)
+   elif variable_name == 'density':
+    cbar.set_label(r'Density',fontsize=10)
+   elif variable_name == 'Uorth':
+    cbar.set_label(r'velocity ortho to the section (cm/s)',fontsize=10)
+   adjustFigAspect(fig,aspect=3)
+
+   if ocean == 'undefined':
+      plt.title('Arctic mediterranean seas ($>$66.34$^{o}$N)')
+   else:
+      plt.title(str(ocean.replace("_"," ")),size=20)
+
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png',bbox_inches='tight')
+   plt.close(fig)
+   return
 
 
 def time_serie(var,variable_name,t,ML,z,zmax,year,option,vmin,vmax,ocean):
