@@ -87,7 +87,12 @@ def plot_map(xr,yr,variable,variable_name,title,output_name,vmin,vmax,colorbar):
       cbar.ax.set_xlabel('Mixed layer depth (m)')
    elif variable_name=='IceC':
       cbar.ax.set_xlabel('Ice cover (concentration)')
-   
+   elif variable_name=='brine':
+      cbar.ax.set_xlabel('Salt flux (kg.m$^{-2}$.kt$^{-1}$...)')
+      #cbar.formatter.set_powerlimits((0, 0))
+   elif variable_name=='ice_f':
+      cbar.ax.set_xlabel('yearly ice formation (cm)')
+      
 
    plt.title(str(title),size=20)
    plt.savefig(str(variable_name)+'/'+str(output_name.replace(".",""))+'.png')
@@ -119,6 +124,7 @@ def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,title,outp
    cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap='viridis')
    cs2=m.contour(x, y, ice_ext1, [0.15],colors='r',linewidths=3)
    h1,_ = cs2.legend_elements()
+
 
    cbar = m.colorbar(cs, location='bottom')
    if variable_name=='icet':
@@ -161,16 +167,16 @@ def plot_map_ano(xr,yr,variable,variable_name,y1,title,output_file,vmin,vmax,col
    # Add Colorbar
    if colorbar == 'RColorbar':
      cs = m.pcolor(x,y,variable)
-     cs2 = m.contour(x, y, variable, [0.,0.0001],colors='k',linewidths=0.5)
+     cs2 = m.contour(x, y, variable, [0.],colors='k',linewidths=1)
      h1,_ = cs2.legend_elements()
    else:
      cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap='viridis')
 
    cbar = m.colorbar(cs, location='bottom')
    if variable_name=='ice_f':
-      cbar.ax.set_xlabel('Ice Formation')
+      cbar.ax.set_xlabel('Ice formation (cm)')
    elif variable_name == 'brine':
-      cbar.ax.set_xlabel('Salt flux')
+      cbar.ax.set_xlabel('Salt flux anomaly (kg.m$^{-2}$.kt$^{-1}$..)')
 
    plt.title(str(title))
    #plt.title(str(y1)+'-'+str(y1+10),size=20)

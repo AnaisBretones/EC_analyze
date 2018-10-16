@@ -48,11 +48,11 @@ def extracting_var(path, variable_name):
   elif variable_name =='iicethic':
     var = Forder(nc.variables['iicethic'][:])
   elif variable_name =='brine':
-    var = Forder(nc.variables['iocesafl'][:])
-  elif variable_name =='saltf':
     var = Forder(nc.variables['sosalflx'][:])
   elif variable_name =='ice_f':
     var = Forder(nc.variables['iiceprod'][:])
+  elif variable_name =='moc':
+    var = Forder(nc.variables['zomsfatl'][:])
   nc.close()
   return var
 
@@ -72,6 +72,16 @@ def extracting_coord(path):
   depth = Forder(nc.variables['deptht'][:])
   nc.close()
   return xr, yr, time, depth
+
+def extracting_coord_moc(path):
+  nc = Dataset(path)
+  xr = Forder(nc.variables['nav_lat'][:])
+  yr = Forder(nc.variables['nav_lon'][:])
+  time = Forder(nc.variables['time_counter'][:])
+  depth = Forder(nc.variables['depthw'][:])
+  nc.close()
+  return xr, yr, time, depth
+
 
 def extracting_coord_only(path):
   nc = Dataset(path)

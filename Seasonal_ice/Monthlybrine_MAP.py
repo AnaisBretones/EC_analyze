@@ -25,7 +25,7 @@ specificity = ''
 #basin = 'arctic_ocean'
 #basin = 'greenland_sea'  # arctic_ocean, Siberian_seas
 basin = 'undefined'
-lat_min=60
+lat_min=50
 
 month = 'March'
 y1p = 1950          #first year in the data
@@ -47,7 +47,7 @@ class From1950to2100():                                                         
      self.y2f = 2090     
      if var == 'brine':                                                                  #//
         self.path = '/media/fig010/LACIE SHARE/EC_data/monthly'+str(y1)+'-'+str(y2)+'/'\
-                  'monthlysalt_'+str(y1)+'-'+str(y2)+'.nc'
+                  'monthlysalt_'+str(y1)+'-'+str(y2)+'_from_icemod.nc'
 
      if basin != 'undefined':
        self.output_fileC = str(var)+'M_'+str(basin)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
@@ -70,7 +70,7 @@ time = simu.first_year+time[:]/(3600*24*364.5)
    
 IceExt = loading.extracting_var(simu.path, var)
 IceExt[np.where(IceExt>1E10)]=np.nan
-IceExt[np.where(IceExt<0)] = np.nan
+#IceExt[np.where(IceExt<0)] = np.nan
 
   
 if basin =='undefined':
@@ -82,32 +82,63 @@ else:
 index_y1h = np.min(np.where(time>simu.y1h))
 index_y1f = np.min(np.where(time>simu.y1f))
 
-array_to_plotH = np.nanmean(IceExt[:,:,index_y1h:index_y1h+10*12],axis=2)
-#array_to_plotH[array_to_plotH==np.nan] = 0
-
-array_to_plotF = np.nanmean(IceExt[:,:,index_y1f:index_y1f+10*12],axis=2)
-#array_to_plotF[array_to_plotF==np.nan] = 0
-
-array_to_plotC = array_to_plotF - array_to_plotH
-array_to_plotC[array_to_plotC==0] = np.nan
-array_to_plotC[~mask] = np.nan
-array_to_plotC = np.ma.masked_invalid(array_to_plotC)
-
-array_to_plotH[array_to_plotH<=0] = np.nan
-array_to_plotH[~mask] = np.nan
-array_to_plotH = np.ma.masked_invalid(array_to_plotH)
-
-array_to_plotF[array_to_plotF<=0] = np.nan
-array_to_plotF[~mask] = np.nan
-array_to_plotF = np.ma.masked_invalid(array_to_plotF)
-
 if var == 'brine':
   vmin = -0.001#-0.002
   vmax = 0.007
+
+#array_to_plotH = np.nansum(IceExt[:,:,index_y1h:index_y1h+10*12],axis=2)
+array_to_plotH = np.zeros_like(IceExt[:,:,0])
+nflux = 0
+flux = 0
+for i in range(0,np.size(IceExt[:,0,0])):
+   for j in range(0,np.size(IceExt[0,:,0])):
+     for t in range(0,10*12-1):
+      pro = IceExt[i,j,index_y1h+t]
+      if pro >0 and pro<1E5:
+         flux = flux + pro
+         nflux = nflux + 1.
+     if nflux != 0:
+       array_to_plotH[i,j] = flux/nflux
+     else:
+       array_to_plotH[i,j] = np.nan
+     nflux=0
+     flux=0
 title= str(simu.y1h)+'-'+str(simu.y2h)
-#make_plot.plot_map(xr,yr,array_to_plotH,var,title,simu.output_fileH,vmin,vmax,colorbar)
+array_to_plotH[~mask] = np.nan
+array_to_plotH = np.ma.masked_invalid(array_to_plotH)
+make_plot.plot_map(xr,yr,array_to_plotH,var,title,simu.output_fileH,vmin,vmax,colorbar)
+array_to_plotH[array_to_plotH==np.nan] = 0
+
+#array_to_plotF = np.nansum(IceExt[:,:,index_y1f:index_y1f+10*12],axis=2)
+array_to_plotF = np.zeros_like(IceExt[:,:,0])
+nflux = 0
+flux = 0
+for i in range(0,np.size(IceExt[:,0,0])):
+   for j in range(0,np.size(IceExt[0,:,0])):
+     for t in range(0,10*12-1):
+      pro = IceExt[i,j,index_y1f+t]
+      if pro>0 and pro<1E5:
+         flux = flux + pro
+         nflux = nflux + 1.
+     if nflux != 0:
+       array_to_plotF[i,j] = flux/nflux
+     else:
+       array_to_plotF[i,j] = np.nan
+     nflux=0
+     flux=0
 title= str(simu.y1f)+'-'+str(simu.y2f)
-#make_plot.plot_map(xr,yr,array_to_plotF,var,title,simu.output_fileF,vmin,vmax,colorbar)
+array_to_plotF[~mask] = np.nan
+array_to_plotF = np.ma.masked_invalid(array_to_plotF)
+
+make_plot.plot_map(xr,yr,array_to_plotF,var,title,simu.output_fileF,vmin,vmax,colorbar)
+array_to_plotF[array_to_plotF==np.nan] = 0
+
+array_to_plotC = array_to_plotF - array_to_plotH
+array_to_plotC[array_to_plotC==0] = np.nan
+array_to_plotC[array_to_plotC<-16] = np.nan
+array_to_plotC[~mask] = np.nan
+array_to_plotC = np.ma.masked_invalid(array_to_plotC)
+
 make_plot.plot_map_ano(xr,yr,array_to_plotC,var,simu.y1f,'future-current',simu.output_fileC,vmin,vmax,colorbar)
 
 

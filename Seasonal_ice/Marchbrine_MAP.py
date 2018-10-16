@@ -27,9 +27,9 @@ specificity = ''
 basin = 'undefined'
 lat_min=60
 
-month = 'March'
+month = 'Jan'
 y1p = 1950          #first year in the data
-y2p = 2300          #last year in the data
+y2p = 2100          #last year in the data
 
 colorbar='RColorbar'
 #colorbar=''
@@ -38,7 +38,7 @@ colorbar='RColorbar'
 class From1950to2100():                                                                 #//
                                                                                         #//
   #___________________                                                                  #//
-  def __init__(self,option,var,y1,y2,colorbar,basin):                                            #//
+  def __init__(self,option,var,y1,y2,colorbar,basin,month):                                            #//
      self.max_depth = 1000                                                              #//
      self.first_year = 1950
      self.y1h = 2010 #1950                                                                       #//
@@ -47,16 +47,16 @@ class From1950to2100():                                                         
      self.y2f = 2090     
      if var == 'brine':                                                                  #//
         self.path = '/media/fig010/LACIE SHARE/EC_data/March'+str(y1)+'-'+str(y2)+'/'\
-                  'Marchsalt_'+str(y1)+'-'+str(y2)+'.nc'
+                  +str(month)+'salt_'+str(y1)+'-'+str(y2)+'.nc'
 
      if basin != 'undefined':
-       self.output_fileC = str(var)+'_March_'+str(basin)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
-       self.output_fileH = str(var)+'_March_'+str(basin)+'_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
-       self.output_fileF = str(var)+'_March_'+str(basin)+'_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
+       self.output_fileC = str(var)+'_'+str(month)+'_'+str(basin)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
+       self.output_fileH = str(var)+'_'+str(month)+'_'+str(basin)+'_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
+       self.output_fileF = str(var)+'_'+str(month)+'_'+str(basin)+'_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
      else:
-       self.output_fileC = str(var)+'_March_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
-       self.output_fileH = str(var)+'_March_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
-       self.output_fileF = str(var)+'_March_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
+       self.output_fileC = str(var)+'_'+str(month)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
+       self.output_fileH = str(var)+'_'+str(month)+'_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
+       self.output_fileF = str(var)+'_'+str(month)+'_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
        #self.output_fileC = str(var)+'flux_March_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
        #self.output_fileH = str(var)+'flux_March_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
        #self.output_fileF = str(var)+'flux_March_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
@@ -66,7 +66,7 @@ class From1950to2100():                                                         
 
 
 
-simu = From1950to2100(option,var,y1p,y2p,colorbar,basin)
+simu = From1950to2100(option,var,y1p,y2p,colorbar,basin,month)
    
 yr, xr, time = loading.extracting_coord_2D(simu.path)
 time = simu.first_year+time[:]/(3600*24*364.5)
@@ -85,10 +85,48 @@ else:
 index_y1h = np.min(np.where(time>simu.y1h))
 index_y1f = np.min(np.where(time>simu.y1f))
 
-array_to_plotH = np.nanmean(IceExt[:,:,index_y1h:index_y1h+10],axis=2)
-array_to_plotH[array_to_plotH==np.nan] = 0
+#array_to_plotH = np.nanmean(IceExt[:,:,index_y1h:index_y1h+10],axis=2)
+#array_to_plotH[array_to_plotH==np.nan] = 0
 
-array_to_plotF = np.nanmean(IceExt[:,:,index_y1f:index_y1f+10],axis=2)
+#array_to_plotF = np.nanmean(IceExt[:,:,index_y1f:index_y1f+10],axis=2)
+#array_to_plotF[array_to_plotF==np.nan] = 0
+
+array_to_plotH = np.zeros_like(IceExt[:,:,0])
+nflux = 0
+flux = 0
+for i in range(0,np.size(IceExt[:,0,0])):
+   for j in range(0,np.size(IceExt[0,:,0])):
+     for t in range(0,10-1):
+      pro = IceExt[i,j,index_y1h+t]
+      if pro >0 and pro<1E5:
+         flux = flux + pro
+         nflux = nflux + 1.
+         print(flux)
+     if nflux != 0:
+       array_to_plotH[i,j] = 24*3600*flux/10
+     else:
+       array_to_plotH[i,j] = np.nan
+     nflux=0
+     flux=0
+
+array_to_plotH[array_to_plotH==np.nan] = 0
+#array_to_plotF = np.nansum(IceExt[:,:,index_y1f:index_y1f+10*12],axis=2)
+array_to_plotF = np.zeros_like(IceExt[:,:,0])
+nflux = 0
+flux = 0
+for i in range(0,np.size(IceExt[:,0,0])):
+   for j in range(0,np.size(IceExt[0,:,0])):
+     for t in range(0,10-1):
+      pro = IceExt[i,j,index_y1f+t]
+      if pro>0 and pro<1E5:
+         flux = flux + pro
+         nflux = nflux + 1.
+     if nflux != 0:
+       array_to_plotF[i,j] = 24*3600*flux/10
+     else:
+       array_to_plotF[i,j] = np.nan
+     nflux=0
+     flux=0
 array_to_plotF[array_to_plotF==np.nan] = 0
 
 

@@ -15,14 +15,51 @@ import os
 import sys
 import numpy as np
 from matplotlib import patches
-import matplotlib.style as style 
 
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
 
+
+def one_sec(var,var2,variable_name,x,z,zmax,year,option,minline,maxline,title,colorbar):
+
+
+   cmap = plt.get_cmap('viridis')
+   cmap.set_bad(color='k', alpha = 1.)
+   #cmap.set_over(color='k')
+
+   plt.figure(figsize=(10,6))
+   fig, ax = plt.subplots()
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   #plt.title(str(title),fontsize=19)
+   plt.contourf(x,z,var,40,cmap=cmap,vmin=np.nanmin(var),vmax=np.nanmax(var))
+   cbar = plt.colorbar()
+   cbar.ax.get_yaxis().labelpad = 15
+   cbar.set_label(r'AMOC (Sv)',fontsize=18)
+
+   cs1=plt.contour(x,z,var, [-5, 0., 5, 10],linewidths=0.5,colors='k')
+   cs2=plt.contour(x,z,var2, [-5, 0., 5, 10],linewidths=2,colors='k')
+   plt.clabel(cs1, colors='k',inline=True, fmt={-5:'-5', 0.:'0', 5:'5',10:'10'},fontsize=9)
+   plt.clabel(cs2, inline=True, fmt={-5:'-5', 0.:'0', 5:'5',10:'10'},fontsize=9)
+   plt.ylim([np.min(z),z[-1]])
+   plt.gca().invert_yaxis()
+   plt.ylabel(r'Depth (m)',fontsize=16)
+   plt.xlim(x[100],x[-1])
+   plt.xlim(x[100],x[-1])
+   plt.xlabel('Latitude',fontsize=16)
+ 
+
+
+   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
+   plt.close(fig)
+   return
+
+
+
+
 def points_on_map(xr,yr,variable_name,ocean):
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.99999,lat_2=50,\
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -47,14 +84,14 @@ def points_on_map(xr,yr,variable_name,ocean):
 
 
 
-def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
+def plot_map(xr,yr,variable,variable_name,title,output_name,vmin,vmax,colorbar):
    # map all Atlantic and Arctic Ocean
    # colorbar under the map: 
    # Ice thickness, Temperature or Salinity
    # year: age of the data
    # time: month? yearly mean? 
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.99999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -68,7 +105,15 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    m.fillcontinents(color='0.8')
 
    # Add Colorbar
-   cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax)
+
+   if colorbar == 'RColorbar':
+     cs = m.pcolor(x,y,variable)
+     cs2 = m.contour(x, y, variable, [0.001],colors='w',linewidths=1)
+     h1,_ = cs2.legend_elements()
+
+   else:
+     cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap='viridis')
+
    cbar = m.colorbar(cs, location='bottom')
    if variable_name=='icet':
       cbar.ax.set_xlabel('Ice Thickness (m)')
@@ -83,18 +128,14 @@ def plot_map(xr,yr,variable,variable_name,title,option,vmin,vmax):
    
 
    plt.title(str(title),size=20)
-   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
+   plt.savefig(str(variable_name)+'/'+str(output_name.replace(".",""))+'.png')
    plt.close(fig)
    return
 
-def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,ice_ext2,y2,title,option,vmin,vmax):
-   # map all Atlantic and Arctic Ocean
-   # colorbar under the map: 
-   # Ice thickness, Temperature or Salinity
-   # year: age of the data
-   # time: month? yearly mean? 
+
+def plot_map_s(xr,yr,variable,variable_name,y1,title,output_file):
    m = Basemap(projection='lcc', resolution='l',
-            lon_0=-20, lat_0=70, lat_1=89, lat_2=50,
+            lon_0=-20, lat_0=70, lat_1=89.99999, lat_2=50,
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
@@ -108,27 +149,53 @@ def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,ice_ext2,y
    m.fillcontinents(color='0.8')
 
    # Add Colorbar
-   cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax)
-   cs2=m.contour(x, y, ice_ext1, [0.15],colors='r')
-   plt.clabel(cs2, inline=True, fmt={0.15:''},fontsize=1, colors='r')
-   cs3=m.contour(x, y, ice_ext2, [0.15],colors='b')
-   plt.clabel(cs3, inline=True, fmt={0.15:str(y2)},fontsize=8, colors='k')
-
+   cs = m.pcolor(x,y,variable,cmap='viridis')
    cbar = m.colorbar(cs, location='bottom')
-   if variable_name=='icet':
-      cbar.ax.set_xlabel('Ice Thickness (m)')
-   elif variable_name == 'sal':
-      cbar.ax.set_xlabel('Salinity (PSU)')
-   elif variable_name =='temp':
-      cbar.ax.set_xlabel('Temperature ($^{o}$C)')
-   elif variable_name=='ML':
-      cbar.ax.set_xlabel('Mixed layer depth (m)')
-   elif variable_name=='IceC':
-      cbar.ax.set_xlabel('Ice cover (concentration)')
+   cbar.ax.set_xlabel('Overturning circulation (Sv)')
    
 
-   plt.title(str(title),size=20)
-   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
+   plt.title(str(y1)+'-'+str(y1+10),size=20)
+   plt.savefig(str(variable_name)+'/'+str(output_file)+'.png')
+   plt.close(fig)
+   return
+
+def plot_map_ano(xr,yr,variable,variable_name,y1,title,output_file,vmin,vmax,colorbar):
+   # map all Atlantic and Arctic Ocean
+   # colorbar under the map: 
+   # Ice thickness, Temperature or Salinity
+   # year: age of the data
+   # time: month? yearly mean? 
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=70, lat_1=89.9999, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x,y = m(xr, yr)
+
+   plt.figure(figsize=(10, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+
+   # Add Colorbar
+   if colorbar == 'RColorbar':
+     cs = m.pcolor(x,y,variable)
+     cs2 = m.contour(x, y, variable, [0.,0.0001],colors='k',linewidths=0.5)
+     h1,_ = cs2.legend_elements()
+   else:
+     cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap='viridis')
+
+   cbar = m.colorbar(cs, location='bottom')
+   if variable_name=='ice_f':
+      cbar.ax.set_xlabel('Ice Formation')
+   elif variable_name == 'brine':
+      cbar.ax.set_xlabel('Salt flux')
+
+   plt.title(str(title))
+   #plt.title(str(y1)+'-'+str(y1+10),size=20)
+   plt.savefig(str(variable_name)+'/'+str(output_file)+'.png')
    plt.close(fig)
    return
 
@@ -211,7 +278,8 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    if variable_name == 'temp':
       plt.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)
    elif variable_name == 'sal':
-      plt.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],80,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+      plt.contourf(year+t/(24*3600*365.),z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
+   plt.ylim([np.min(z),z[i_zmax]])
    plt.ylabel(r'Depth (m)')
    plt.gca().invert_yaxis()
    # rotate and align the tick labels so they look better
@@ -232,57 +300,6 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
    plt.close(fig)
    return
-
-def one_sec(var,variable_name,x,z,zmax,year,option,minline,maxline,ocean,colorbar):
-
-   #style.use('dark_background')
-   i_zmax = np.max(np.where(z<zmax))
-   
-   cmap = plt.get_cmap('viridis')#bwr')  
-   cmap.set_bad(color='k', alpha = 1.)
-   #cmap.set_over(color='k')
-
-   fig = plt.figure(figsize=(10,6))
-   plt.rc('text', usetex=True)
-   plt.rc('font', family='serif')
-   gs = gridspec.GridSpec(2, 2, height_ratios=[1,1], width_ratios=[6,0], hspace=0.05,wspace=0.1)
-   if colorbar=='unchanged':
-     ax = plt.subplot(gs[0],axisbg='black')
-     p = ax.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,cmap=cmap,vmin=np.nanmin(var),vmax=np.nanmax(var))
-     plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [minline,maxline],colors='k')
-     plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [0.],linewidths=2,colors='k')
-     plt.ylim([np.min(z),z[i_zmax]])
-     frame1 = plt.gca()
-     frame1.axes.get_xaxis().set_visible(False)
-     plt.gca().invert_yaxis()
-     plt.ylabel(r'Depth (m)',fontsize=16)
-
-     ax2 = plt.subplot(gs[2],axisbg='black')
-     cs = plt.contourf(x,z[i_zmax:-4],var[i_zmax:-4,:],40,cmap=cmap,vmin=np.nanmin(var),vmax=np.nanmax(var))
-     #cs.set_clim(np.nan)
-     plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [minline,maxline],colors='k')
-     plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [0.],linewidths=2,colors='k')
-     plt.ylim([z[i_zmax],z[-4]])
-     plt.gca().invert_yaxis()
-
-     fig.subplots_adjust(right=0.8)
-     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-     fig.colorbar(p, cax=cbar_ax)
-     if variable_name == 'Utang':
-        plt.ylabel(r'Meridional velocity (m/s)',fontsize=18)
-     elif variable_name == 'sal':
-        plt.ylabel(r'Salinity (PSU)',fontsize=18)
-     elif variable_name == 'temp':
-        plt.ylabel(r'Temperature ($^{o}$C)',fontsize=18)
- 
-   else:
-     plt.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
-     plt.ylim([z[i_zmax],z[-1]])
-
-   plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
-   plt.close(fig)
-   return
-
 
 def time_serie_one_year(var,variable_name,z,t,year):
   plt.figure(figsize=(10,6))
@@ -314,20 +331,17 @@ def time_serie_one_year(var,variable_name,z,t,year):
   plt.close(fig)
   return
 
-def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean, zmax):
+def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean):
   plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
   fig,ax=plt.subplots()
   t = t/(3600*24*365.)
   plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  #plt.ylim([0.,0.75])
+  plt.ylim([0.,0.75])
   if variable_name == 'IceC':
      plt.plot(first_year_file+t,var)
      plt.ylabel('Ice cover',fontsize=18)
-  elif variable_name == 'temp':
-     plt.plot(first_year_file+t,var)
-     plt.ylabel('Mean temperature 0-'+str(zmax)+'m',fontsize=18)
   plt.xlabel('time',fontsize=18)
   if ocean == 'undefined':
       plt.title('Mean Arctic ($>$'+str(lat_min)+'$^{o}$N)')
@@ -336,29 +350,35 @@ def var_fc_time(var,variable_name,t,first_year_file,lat_min,name_outfile,ocean, 
   plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
   return
 
-def var_fc_time_two_axis(var,variable_name,t,first_year_file, ice_ext,z,zmax,year,option,vmin,vmax,ocean,name_outfile):
-  fig = plt.figure(figsize=(10,6))
+def var_fc_time_2(var,var2,variable_name,t,first_year_file,lat_min,name_outfile,month1,month2):
+  plt.figure(figsize=(10,6))
   plt.rc('text', usetex=True)
   plt.rc('font', family='serif')
-  ax1 = fig.add_subplot(111)
-  t = t/(3600*24*365.)
-  plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
-  #plt.ylim([0.,0.75])
-  if variable_name == 'IceC':
-     ax1.plot(first_year_file+t,var)
-     plt.ylabel('Ice cover',fontsize=18)
-  elif variable_name == 'temp':
-     ax1.plot(first_year_file+t,var)
-     plt.ylabel('Mean temperature 0-'+str(zmax)+'m',fontsize=18)
+  fig,ax=plt.subplots()
+  #plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
 
-  ax2 = ax1.twinx()
-  ax2.plot(first_year_file+t,ice_ext,linewidth=0.5,color="black")
-  plt.ylabel(r'Sea ice extent (m$^{2}$)',fontsize=18)
-
+  plt.plot(t,var,label=str(month1))
+  plt.plot(t,var2,label=str(month2))
+  plt.ylabel('Sea ice extent (m$^{2}$)',fontsize=18)
   plt.xlabel('time',fontsize=18)
-  plt.title(str(ocean.replace("_"," ")),size=20)
-  plt.savefig(str(variable_name)+'/'+str(name_outfile.replace(".",""))+'.png')
+  ax.legend()
+  plt.savefig(str(variable_name)+'/'+str(name_outfile)+'.png')
   return
 
+def var_fc_time_3(variable_name,var,var2,t,var3,t3,lat_min,name_outfile,month1,month2,month3):
+  plt.figure(figsize=(10,6))
+  plt.rc('text', usetex=True)
+  plt.rc('font', family='serif')
+  fig,ax=plt.subplots()
+  #plt.xlim([first_year_file+np.min(t),first_year_file+np.max(t)])
+
+  plt.plot(t,var,label=str(month1))
+  plt.plot(t,var2,label=str(month2))
+  plt.plot(t3,var3,label=str(month3))
+  plt.ylabel('Sea ice extent (m$^{2}$)',fontsize=18)
+  plt.xlabel('time',fontsize=18)
+  ax.legend()
+  plt.savefig(str(variable_name)+'/'+str(name_outfile)+'_SeasonalVariations.png')
+  return
 
 

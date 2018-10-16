@@ -16,7 +16,7 @@ import make_plot
 import loading
 
 
-var = 'Utang'			# sal, temp, Uorth Utang density
+var = 'sal'			# sal, temp, Uorth Utang density
 option = 'Coupled'		# Coupled, Uncoupled
 
 y1 = 1950
@@ -38,7 +38,8 @@ class From1950to2100():									#//
      self.first_year = 1950
      self.y1 = y1 	                                                                #//
      self.y2 = y2
-
+     
+     sec='FS'
      self.y1h = 2010 #1950                                                                       #//
      self.y2h = 2020
      self.y1f = 2080 #2090
@@ -47,21 +48,21 @@ class From1950to2100():									#//
      self.pathW = '/media/fig010/LACIE SHARE/EC_data/yearly'+str(self.y1)+'-'+str(self.y2)+'/sectionW.nc'
      self.pathE = '/media/fig010/LACIE SHARE/EC_data/yearly'+str(self.y1)+'-'+str(self.y2)+'/sectionE.nc'
 
-     self.output_fileH = str(var)+'_'+str(self.y1h)+'-'+str(self.y2h)                                #//
-     self.output_fileF = str(var)+'_'+str(self.y1f)+'-'+str(self.y2f)                                #//
-     self.output_fileC = str(var)+'Anomaly_'+str(self.y1h)+'-'+str(self.y1f)                                #//
+     self.output_fileH = str(var)+'_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(sec)                                #//
+     self.output_fileF = str(var)+'_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(sec)                                #//
+     self.output_fileC = str(var)+'Anomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(sec)                                #//
  
      if var == 'temp':                                                                 #//
         self.vmin = -1.8                                                                   #//
         self.vmax = 7                                                                #//
-        self.vminC = -0.1                                                                   #//
-        self.vmaxC = 6                                                                #//
+        self.vminC = 2.5                                                                   #//
+        self.vmaxC = 5                                                                #//
 
      elif var == 'sal':                                                                #//
         self.vmin = 30                                                              #//
         self.vmax = 35                                                                #//
-        self.vminC = -1.60                                                              #//
-        self.vmaxC = 1.2                                                                #//
+        self.vminC = -0.2                                                              #//
+        self.vmaxC = 0.2                                                               #//
      else:
         self.vmin = 0
         self.vmax = 0
@@ -99,8 +100,11 @@ else:
   VARW[ SW==0 ] = np.nan
 
 
+
 var_to_plot = np.hstack((np.nanmean(VARW[:,:,index_y1h:index_y1h+10],axis=2).transpose(),np.nanmean(VARE[:,:,index_y1h:index_y1h+10],axis=2).transpose()))
 X_to_plot = np.concatenate((XW,XE+XW[-1]),axis=0)
+X_to_plot = np.ma.masked_invalid(X_to_plot)
+
 make_plot.one_sec(var_to_plot,var,X_to_plot,depth,simu.max_depth,y1,simu.output_fileH,simu.vmin,simu.vmax,str(simu.y1h)+'-'+str(simu.y2h),Colorbar)
 
 var_to_plot2 = np.hstack((np.nanmean(VARW[:,:,index_y1f:index_y1f+10],axis=2).transpose(),np.nanmean(VARE[:,:,index_y1f:index_y1f+10],axis=2).transpose()))
