@@ -28,9 +28,8 @@ basin = 'undefined'
 lat_min=50
 
 month = 'March'
-y1p = 1950          #first year in the data
+y1p = 1950          #first year in the datay2p = 2300          #last year in the data
 y2p = 2100          #last year in the data
-
 colorbar='RColorbar'
 #colorbar=''
 
@@ -69,9 +68,9 @@ yr, xr, time = loading.extracting_coord_2D(simu.path)
 time = simu.first_year+time[:]/(3600*24*364.5)
    
 IceExt = loading.extracting_var(simu.path, var)
+print(np.nanmin(IceExt),np.nanmax(IceExt))
 IceExt[np.where(IceExt>1E10)]=np.nan
 #IceExt[np.where(IceExt<0)] = np.nan
-
   
 if basin =='undefined':
    mask = loading.latitudinal_band_mask(yr,lat_min,90)
@@ -94,7 +93,7 @@ for i in range(0,np.size(IceExt[:,0,0])):
    for j in range(0,np.size(IceExt[0,:,0])):
      for t in range(0,10*12-1):
       pro = IceExt[i,j,index_y1h+t]
-      if pro >0 and pro<1E5:
+      if pro >0: #and pro<1E5:
          flux = flux + pro
          nflux = nflux + 1.
      if nflux != 0:
@@ -106,7 +105,7 @@ for i in range(0,np.size(IceExt[:,0,0])):
 title= str(simu.y1h)+'-'+str(simu.y2h)
 array_to_plotH[~mask] = np.nan
 array_to_plotH = np.ma.masked_invalid(array_to_plotH)
-make_plot.plot_map(xr,yr,array_to_plotH,var,title,simu.output_fileH,vmin,vmax,colorbar)
+#make_plot.plot_map(xr,yr,array_to_plotH,var,title,simu.output_fileH,vmin,vmax,colorbar)
 array_to_plotH[array_to_plotH==np.nan] = 0
 
 #array_to_plotF = np.nansum(IceExt[:,:,index_y1f:index_y1f+10*12],axis=2)
@@ -130,7 +129,7 @@ title= str(simu.y1f)+'-'+str(simu.y2f)
 array_to_plotF[~mask] = np.nan
 array_to_plotF = np.ma.masked_invalid(array_to_plotF)
 
-make_plot.plot_map(xr,yr,array_to_plotF,var,title,simu.output_fileF,vmin,vmax,colorbar)
+#make_plot.plot_map(xr,yr,array_to_plotF,var,title,simu.output_fileF,vmin,vmax,colorbar)
 array_to_plotF[array_to_plotF==np.nan] = 0
 
 array_to_plotC = array_to_plotF - array_to_plotH

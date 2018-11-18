@@ -79,13 +79,13 @@ IceThick_to_plotF = np.ma.masked_invalid(IceThick_to_plotF)
 
 
 if month =='March':
-  title_plot = 'Winter sea ice'
+  title_plot = 'WINTER'
   vmin = 0 
   vmax = 6
 elif month =='Sept':
   vmin = 0
   vmax = 5.5
-  title_plot = 'Winter sea ice'
+  title_plot = 'SUMMER'
 make_plot.plot_map_with_ice_extent(xr,yr,IceThick_to_ploth,var,array_to_plotH,simu.y1h,title_plot,simu.output_fileH,vmin,vmax)
 make_plot.plot_map_with_ice_extent(xr,yr,IceThick_to_plotF,var,array_to_plotF,simu.y1f,title_plot,simu.output_fileF,vmin,vmax)
 

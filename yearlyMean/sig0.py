@@ -14,7 +14,7 @@ import os
 import sys
 import numpy as np
 
-import make_plot
+#import make_plot
 import loading
 
 
@@ -86,6 +86,52 @@ class yearly_LongPeriod():                                                      
                                                                                         #//
 #//////////////////////////////////////////////////////////////////////////////////////////
 
+def vertical_profile(var1,var2,var3,y1,l1,l2,l3,variable_name,vmin,vmax,z,zmax,ocean,lat_min,name_file):
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   i_zmax = np.max(np.where(z<zmax))
+
+   #z2 = np.zeros_like(z[0:i_zmax+1])
+   #z2[:] = 1000
+
+   plt.figure(figsize=(7,15))
+   fig,ax = plt.subplots()
+   ax.plot(var1[0:i_zmax+1],z[0:i_zmax+1],color = 'b',label=str(l1.replace("_"," ")))
+   #ax.plot(var2[0:i_zmax+1],z[0:i_zmax+1],label=str(l2.replace("_"," ")))
+   ax.plot(var3[0:i_zmax+1],z[0:i_zmax+1],color = 'r',label=str(l3.replace("_"," ")))
+   #ax.plot(var3[0:i_zmax+1],z2,'k-')
+
+   plt.gca().invert_yaxis()
+   plt.ylabel(r'Depth (m)',fontsize=15)
+   if variable_name == 'temp':
+     plt.xlabel(r'Temperature ($^{o}$C)',fontsize=18)
+   elif variable_name == 'density':
+     plt.xlabel(r'Density (kg.m$^{-3}$',fontsize=18)
+   elif variable_name == 'sal':
+     plt.xlabel(r'Salinity (PSU)',fontsize=18)
+     plt.xticks([32,33,34,35])
+   plt.yticks([500, 1000,1500])
+   plt.xlim([vmin,vmax])
+   plt.ylim([z[i_zmax],0])
+   plt.xticks(size = 20)
+   plt.yticks(size = 20)
+
+   if y1<2050:
+     plt.title('PRESENT ('+str(y1)+')',fontsize=18)#str(y1)+'-'+str(y1+10))
+   else:
+     plt.title('FUTURE ('+str(y1)+')',fontsize=18)#str(y1)+'-'+str(y1+10))
+
+   box = ax.get_position()
+   ax.set_position([box.x0*1.2, box.y0 + box.height * 0.3,
+                 box.width, box.height * 0.7])
+   h, l = ax.get_legend_handles_labels()
+   ax.legend(h, l,  bbox_to_anchor=(-.5,-.05, 2,-0.35), loc=9,
+           ncol=1)
+
+   plt.savefig(str(variable_name)+'/'+str(name_file.replace(".",""))+'.png')
+
+   plt.close(fig)
+   return
 
 
 simu = yearly_LongPeriod(option,var,y1,y2,basin,lat_min)
@@ -93,6 +139,7 @@ simu = yearly_LongPeriod(option,var,y1,y2,basin,lat_min)
 yr, xr, time, depth = loading.extracting_coord(simu.path)
 
 VarArray_simuRho = loading.extracting_var(simu.path, var)   # Practical Salinity
+
 
 if var =='temp':
   S = loading.extracting_var(simu.path, 'sal')   # Practical Salinity
@@ -113,6 +160,7 @@ else:
    mask = loading.Ocean_mask(xr,yr,basin)
    make_plot.points_on_map(xr[mask],yr[mask],var,basin)
 '''
+
 mask1=loading.Ocean_mask(xr,yr,b1)
 mask2=loading.Ocean_mask(xr,yr,b2)
 mask3=loading.Ocean_mask(xr,yr,b3)
@@ -125,12 +173,12 @@ mean_region2 = np.nanmean(r2,axis=0)
 mean_region3 = np.nanmean(r3,axis=0)
 
 
-make_plot.vertical_profile(np.nanmean(mean_region1[:,index_y1:index_y1+10],axis=1),\
+vertical_profile(np.nanmean(mean_region1[:,index_y1:index_y1+10],axis=1),\
           np.nanmean(mean_region2[:,index_y1:index_y1+10],axis=1),\
           np.nanmean(mean_region3[:,index_y1:index_y1+10],axis=1),simu.y1h,b1,b2,b3,var,simu.vmin, \
           simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_fileH)
 
-make_plot.vertical_profile(np.nanmean(mean_region1[:,index_y2:index_y2+10],axis=1),\
+vertical_profile(np.nanmean(mean_region1[:,index_y2:index_y2+10],axis=1),\
           np.nanmean(mean_region2[:,index_y2:index_y2+10],axis=1),\
           np.nanmean(mean_region3[:,index_y2:index_y2+10],axis=1),simu.y1f,b1,b2,b3,var,simu.vmin, \
           simu.vmax,depth,simu.max_depth,basin,lat_min,simu.output_fileF)

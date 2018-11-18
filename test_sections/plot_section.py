@@ -54,7 +54,7 @@ def points_on_map(xr,yr,variable_name,name):
    return
 
 path = '/media/fig010/LACIE SHARE/EC_data/test/section.nc'
-name = 'section_CC'
+name = 'section_AOtoBS'
 
 yr, xr, time, depth, X = extracting_coord_1D(path)
 

@@ -107,6 +107,6 @@ make_plot.masks_on_map(var,xr[mask1],yr[mask1],m1, \
                         xr[mask4],yr[mask4],m4, \
                         xr[mask5],yr[mask5],m5 )
                           
-
-
+make_plot.masks2_on_map(var,xr[mask5],yr[mask5],m5, \
+                        xr[mask3],yr[mask3],m3)
 

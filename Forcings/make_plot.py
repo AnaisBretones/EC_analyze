@@ -275,3 +275,33 @@ def masks_on_map(variable_name,xr1,yr1,m1, xr2,yr2,m2, xr3,yr3,m3, xr4,yr4,m4, x
    plt.savefig(str(variable_name)+'/all_basins.png')
    plt.close(fig)
    return
+
+
+def masks2_on_map(variable_name,xr1,yr1,m1, xr2,yr2,m2):
+   m = Basemap(projection='lcc', resolution='l',
+            lon_0=-20, lat_0=70, lat_1=89.99999999, lat_2=50,
+            width=1.E7, height=0.9E7)
+   #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
+   x1,y1 = m(xr1, yr1)
+   x2,y2 = m(xr2, yr2)
+
+   plt.figure(figsize=(15, 6))
+   plt.rc('text', usetex=True)
+   plt.rc('font', family='serif')
+   fig, ax = plt.subplots()
+
+   m.drawcoastlines(linewidth=0.5)
+   m.fillcontinents(color='0.8')
+   m.drawparallels(np.linspace(0, 90, 10))
+   m.drawmeridians(np.linspace(-180, 180, 10))
+   # Add Colorbar
+   cs = m.scatter(x1,y1,marker='o', color='b',s=0.4, label=str(m1.replace("_"," ")))
+   #cs = m.scatter(x2,y2,marker='o', color='r',s=0.5, label=str(m2.replace("_"," ")))
+
+
+   plt.savefig(str(variable_name)+'/arctic.png')#2_basins.png')
+   plt.close(fig)
+   return
+
+
+

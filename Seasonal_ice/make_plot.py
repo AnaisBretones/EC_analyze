@@ -15,6 +15,9 @@ import os
 import sys
 import numpy as np
 from matplotlib import patches
+import seaborn
+
+import seaborn as sns
 
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
@@ -57,10 +60,10 @@ def plot_map(xr,yr,variable,variable_name,title,output_name,vmin,vmax,colorbar):
             width=1.E7, height=0.9E7)
    #m = Basemap(projection='ortho',lat_0=60,lon_0=-20,resolution='l')
    x,y = m(xr, yr)
-
-   plt.figure(figsize=(10, 6))
    plt.rc('text', usetex=True)
    plt.rc('font', family='serif')
+
+   plt.figure(figsize=(10, 6))
    fig, ax = plt.subplots()
 
    m.drawcoastlines(linewidth=0.5)
@@ -69,7 +72,7 @@ def plot_map(xr,yr,variable,variable_name,title,output_name,vmin,vmax,colorbar):
    # Add Colorbar
 
    if colorbar == 'RColorbar':
-     cs = m.pcolor(x,y,variable)
+     cs = m.pcolor(x,y,variable, center=0,cmap="RdBu_r")
      cs2 = m.contour(x, y, variable, [0.001],colors='w',linewidths=1)
      h1,_ = cs2.legend_elements()
 
@@ -88,7 +91,7 @@ def plot_map(xr,yr,variable,variable_name,title,output_name,vmin,vmax,colorbar):
    elif variable_name=='IceC':
       cbar.ax.set_xlabel('Ice cover (concentration)')
    elif variable_name=='brine':
-      cbar.ax.set_xlabel('Salt flux (kg.m$^{-2}$.kt$^{-1}$...)')
+      cbar.ax.set_xlabel('Salt flux (kg.m$^{-2}$.s$^{-1}$)')
       #cbar.formatter.set_powerlimits((0, 0))
    elif variable_name=='ice_f':
       cbar.ax.set_xlabel('yearly ice formation (cm)')
@@ -128,7 +131,7 @@ def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,title,outp
 
    cbar = m.colorbar(cs, location='bottom')
    if variable_name=='icet':
-      cbar.ax.set_xlabel('Ice Thickness (m)')
+      cbar.ax.set_xlabel('Ice Thickness (m)',fontsize=18)
    elif variable_name == 'sal':
       cbar.ax.set_xlabel('Salinity (PSU)')
    elif variable_name =='temp':
@@ -136,10 +139,10 @@ def plot_map_with_ice_extent(xr,yr,variable,variable_name,ice_ext1,y1,title,outp
    elif variable_name=='ML':
       cbar.ax.set_xlabel('Mixed layer depth (m)')
    elif variable_name=='IceC':
-      cbar.ax.set_xlabel('Ice Thickness (m)')
+      cbar.ax.set_xlabel('Ice Thickness (m)',fontsize=18)
    
 
-   plt.title(str(y1)+'-'+str(y1+10),size=20)
+   plt.title(str(title),size=20)
    plt.savefig(str(variable_name)+'/'+str(output_file)+'.png')
    plt.close(fig)
    return
@@ -166,7 +169,7 @@ def plot_map_ano(xr,yr,variable,variable_name,y1,title,output_file,vmin,vmax,col
 
    # Add Colorbar
    if colorbar == 'RColorbar':
-     cs = m.pcolor(x,y,variable)
+     cs = m.pcolor(x,y,variable,center=0,cmap="RdBu_r")
      cs2 = m.contour(x, y, variable, [0.],colors='k',linewidths=1)
      h1,_ = cs2.legend_elements()
    else:
@@ -176,7 +179,7 @@ def plot_map_ano(xr,yr,variable,variable_name,y1,title,output_file,vmin,vmax,col
    if variable_name=='ice_f':
       cbar.ax.set_xlabel('Ice formation (cm)')
    elif variable_name == 'brine':
-      cbar.ax.set_xlabel('Salt flux anomaly (kg.m$^{-2}$.kt$^{-1}$..)')
+      cbar.ax.set_xlabel('Salt flux anomaly (kg.m$^{-2}$.s$^{-1}$)')
 
    plt.title(str(title))
    #plt.title(str(y1)+'-'+str(y1+10),size=20)

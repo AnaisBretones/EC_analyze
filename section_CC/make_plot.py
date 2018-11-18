@@ -233,7 +233,7 @@ def time_serie(var,variable_name,t,z,zmax,year,option,vmin,vmax,ocean):
    plt.close(fig)
    return
 
-def one_sec(var,variable_name,x,z,zmax,year,option,minline,maxline,ocean,colorbar):
+def one_sec(var,variable_name,x,z,zmax,year,option,minline,maxline,ocean,colorbar,vmin,vmax):
 
    #style.use('dark_background')
    i_zmax = np.max(np.where(z<zmax))
@@ -246,39 +246,46 @@ def one_sec(var,variable_name,x,z,zmax,year,option,minline,maxline,ocean,colorba
    plt.rc('text', usetex=True)
    plt.rc('font', family='serif')
    gs = gridspec.GridSpec(2, 2, height_ratios=[1,1], width_ratios=[6,0], hspace=0.05,wspace=0.1)
+   ax = plt.subplot(gs[0],axisbg='black')
    if colorbar=='unchanged':
-     ax = plt.subplot(gs[0],axisbg='black')
      p = ax.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,cmap=cmap,vmin=np.nanmin(var),vmax=np.nanmax(var))
-     plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [minline,maxline],colors='k')
-     plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [0.],linewidths=2,colors='k')
-     plt.ylim([np.min(z),z[i_zmax]])
-     frame1 = plt.gca()
-     frame1.axes.get_xaxis().set_visible(False)
-     plt.gca().invert_yaxis()
-     plt.ylabel(r'Depth (m)',fontsize=16)
+   else:
+     p = ax.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,cmap=cmap,vmin=vmin,vmax=vmax)
+   plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [minline,maxline],colors='k')
+   plt.contour(x,z[0:i_zmax+1],var[0:i_zmax+1,:], [0.],linewidths=2,colors='k')
+   plt.ylim([np.min(z),z[i_zmax]])
+   plt.yticks([500])
+   plt.yticks(size = 20)
 
-     ax2 = plt.subplot(gs[2],axisbg='black')
+   frame1 = plt.gca()
+   frame1.axes.get_xaxis().set_visible(False)
+   plt.gca().invert_yaxis()
+   plt.ylabel(r'Depth (m)',fontsize=16)
+
+   ax2 = plt.subplot(gs[2],axisbg='black')
+   if colorbar=='unchanged':
      cs = plt.contourf(x,z[i_zmax:-4],var[i_zmax:-4,:],40,cmap=cmap,vmin=np.nanmin(var),vmax=np.nanmax(var))
      #cs.set_clim(np.nan)
-     plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [minline,maxline],colors='k')
-     plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [0.],linewidths=2,colors='k')
-     plt.ylim([z[i_zmax],z[-4]])
-     plt.gca().invert_yaxis()
+   else:
+     cs = plt.contourf(x,z[i_zmax:-4],var[i_zmax:-4,:],40,cmap=cmap,vmin=vmin,vmax=vmax)
+   plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [minline,maxline],colors='k')
+   plt.contour(x,z[i_zmax:-4],var[i_zmax:-4,:], [0.],linewidths=2,colors='k')
+   plt.ylim([z[i_zmax],z[-4]])
+   plt.yticks([1000,2000,3000,4000])
+   plt.yticks(size = 20)
+   plt.gca().invert_yaxis()
 
-     fig.subplots_adjust(right=0.8)
-     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-     fig.colorbar(p, cax=cbar_ax)
-     if variable_name == 'Utang':
+   fig.subplots_adjust(right=0.8)
+   cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+   fig.colorbar(p, cax=cbar_ax)
+   if variable_name == 'Utang':
         plt.ylabel(r'Meridional velocity (m/s)',fontsize=18)
-     elif variable_name == 'sal':
+   elif variable_name == 'sal':
         plt.ylabel(r'Salinity (PSU)',fontsize=18)
-     elif variable_name == 'temp':
+   elif variable_name == 'temp':
         plt.ylabel(r'Temperature ($^{o}$C)',fontsize=18)
  
-   else:
-     plt.contourf(x,z[0:i_zmax+1],var[0:i_zmax+1,:],40,vmin=vmin,vmax=vmax)#,vmin=31.76,vmax=34.02)
-     plt.ylim([z[i_zmax],z[-1]])
-
+   plt.suptitle('FUTURE - PRESENT', fontsize=18)
    plt.savefig(str(variable_name)+'/'+str(option.replace(".",""))+'.png')
    plt.close(fig)
    return

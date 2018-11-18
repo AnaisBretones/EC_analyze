@@ -22,6 +22,12 @@ def find_right_path(year,model,number,file_type):
   path = 'data/'+str(scenario)+str(number)+'_'+str(model)+'_'+str(year)+'/'+str(model)+'_MM_'+str(year)+'_'+str(file_type)
   return path
 
+def reading_grid(path):
+  nc = Dataset(path)
+  var = Forder(nc.variables['Cell_area'][:])
+  nc.close()
+  return var
+
 def extracting_var(path, variable_name):
   nc = Dataset(path)
   print(nc.variables.keys())
@@ -53,6 +59,9 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['sosalflx'][:])
   elif variable_name =='ice_f':
     var = Forder(nc.variables['iiceprod'][:])
+  elif variable_name =='ileadfra':
+    var = Forder(nc.variables[variable_name][:])
+   
   nc.close()
   return var
 
@@ -135,9 +144,13 @@ def Ocean_mask(x,y,basin):
   return mask
 
 
-def extract_sea_ice_ext(y1,y2,month,basin):
-   txt_file = '/media/fig010/LACIE SHARE/EC_data/'+str(month)+str(y1)+'-'+str(y2)+'/sea_ice_extent_'+str(basin)+'.txt'
-   ice_ext_array = np.zeros((y2-y1-1))
+def extract_sea_ice_ext(y1,y2,month,basin,option,deg):
+   #if basin=='undefined':
+   txt_file = '/media/fig010/LACIE SHARE/EC_data/'+str(month)+str(y1)+'-'+str(y2)+'/sea_ice_extent_'+str(basin)+'_'+str(deg)+str(option)+'.txt'
+   #else:
+   #  txt_file = '/media/fig010/LACIE SHARE/EC_data/'+str(month)+str(y1)+'-'+str(y2)+'/sea_ice_extent_'+str(basin)+'.txt'
+
+   ice_ext_array = np.zeros((y2-y1))
    with open(txt_file, "r") as f:
      tab = []
      for line in range(0,y2-y1-1):

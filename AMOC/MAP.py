@@ -54,7 +54,8 @@ yr, xr, time,depth = loading.extracting_coord_moc(simu.path)
 time = simu.first_year+time[:]/(3600*24*364.5)
    
 moc = loading.extracting_var(simu.path, var)
-   
+moc[np.where(moc==0.000)]=np.nan   
+
 index_y1h = np.min(np.where(time>simu.y1h))
    
 index_y1f = np.min(np.where(time>simu.y1f))
@@ -80,7 +81,10 @@ X = yr[0,:]
 minline=-0.1
 maxline=0.1
 
+array_to_plotF = np.ma.masked_invalid(array_to_plotF)
+array_to_plotH = np.ma.masked_invalid(array_to_plotH)
+
 #make_plot.one_sec(array_to_plotH.transpose(),var,X,-depth,simu.max_depth,simu.y1h,simu.output_fileH,minline,maxline,str(simu.y1h)+'-'+str(simu.y2h),colorbar)
 #make_plot.one_sec(array_to_plotF.transpose(),var,X,-depth,simu.max_depth,simu.y1f,simu.output_fileF,minline,maxline,str(simu.y1f)+'-'+str(simu.y2f),colorbar)
-make_plot.one_sec(array_to_plotF.transpose(),array_to_plotH.transpose(),var,X,-depth,simu.max_depth,simu.y1h,simu.output_fileC,minline,maxline,'current and future',colorbar)
+make_plot.one_sec(array_to_plotH.transpose(),array_to_plotF.transpose(),var,X,-depth,simu.max_depth,simu.y1h,simu.output_fileC,minline,maxline,'current and future',colorbar)
 
