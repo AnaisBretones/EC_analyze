@@ -16,10 +16,12 @@ import numpy as np
 import make_plot
 import loading
 
-var='brine'
+var='brine'         # brine, Icef
 
 option = 'Coupled'
 specificity = ''
+scenario='CO2'      # 'CO2' or ''
+deg= 'FullGrid'     
 
 #basin = 'Siberian_seas'
 #basin = 'arctic_ocean'
@@ -45,9 +47,18 @@ class From1950to2100():                                                         
      self.y2h = 2020
      self.y1f = 2080 #2090
      self.y2f = 2090     
-     if var == 'brine':                                                                  #//
-        self.path = '/media/fig010/LACIE SHARE/EC_data/March'+str(y1)+'-'+str(y2)+'/'\
-                  +str(month)+'salt_'+str(y1)+'-'+str(y2)+'.nc'
+
+     if scenario == 'CO2':
+       self.first_year = 1850
+       self.y1h = 1850 #1950                                                                       #//
+       self.y2h = 1860
+       self.y1f = 1870 #2090
+       self.y2f = 1880
+
+
+                                                                                        #//
+     self.path = '/media/fig010/LACIE SHARE/EC_data/monthly'+str(y1)+'-'+str(y2)+'/'\
+                  +str(var)+'_MonthlyMeans_'+str(scenario)+str(option)+'_'+str(deg)+'.nc'
 
      if basin != 'undefined':
        self.output_fileC = str(var)+'_'+str(month)+'_'+str(basin)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
@@ -57,9 +68,6 @@ class From1950to2100():                                                         
        self.output_fileC = str(var)+'_'+str(month)+'_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
        self.output_fileH = str(var)+'_'+str(month)+'_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
        self.output_fileF = str(var)+'_'+str(month)+'_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
-       #self.output_fileC = str(var)+'flux_March_10yAnomaly_'+str(self.y1h)+'-'+str(self.y1f)+'_'+str(colorbar)                                #//
-       #self.output_fileH = str(var)+'flux_March_'+str(self.y1h)+'-'+str(self.y2h)+'_'+str(colorbar)                                #//
-       #self.output_fileF = str(var)+'flux_March_'+str(self.y1f)+'-'+str(self.y2f)+'_'+str(colorbar)                                #//
 
      return                                                                             #//
 #//////////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +80,8 @@ yr, xr, time = loading.extracting_coord_2D(simu.path)
 time = simu.first_year+time[:]/(3600*24*364.5)
    
 IceExt = loading.extracting_var(simu.path, var)
-IceExt[np.where(IceExt>1E10)]=np.nan
-IceExt[np.where(IceExt<0)] = np.nan
+#IceExt[np.where(IceExt>1E10)]=np.nan
+#IceExt[np.where(IceExt<0)] = np.nan
 
   
 if basin =='undefined':

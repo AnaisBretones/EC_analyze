@@ -53,11 +53,11 @@ def extracting_var(path, variable_name):
     var = Forder(nc.variables['vosigma0'][:])
   elif variable_name =='iicethic':
     var = Forder(nc.variables['iicethic'][:])
-  elif variable_name =='brine':
+  elif variable_name =='salt':
     var = Forder(nc.variables['iocesafl'][:])
-  elif variable_name =='saltf':
-    var = Forder(nc.variables['sosalflx'][:])
-  elif variable_name =='ice_f':
+  #elif variable_name =='saltf':
+  #  var = Forder(nc.variables['sosalflx'][:])
+  elif variable_name =='Icef':
     var = Forder(nc.variables['iiceprod'][:])
   elif variable_name =='ileadfra':
     var = Forder(nc.variables[variable_name][:])

@@ -15,9 +15,9 @@ import os
 import sys
 import numpy as np
 from matplotlib import patches
-import seaborn
+#import seaborn
 
-import seaborn as sns
+#import seaborn as sns
 
 def Forder(var):
    return np.asfortranarray(var.T,dtype=np.float64)
@@ -169,11 +169,11 @@ def plot_map_ano(xr,yr,variable,variable_name,y1,title,output_file,vmin,vmax,col
 
    # Add Colorbar
    if colorbar == 'RColorbar':
-     cs = m.pcolor(x,y,variable,center=0,cmap="RdBu_r")
+     cs = m.pcolor(x,y,variable,cmap="RdBu_r")
      cs2 = m.contour(x, y, variable, [0.],colors='k',linewidths=1)
      h1,_ = cs2.legend_elements()
    else:
-     cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap='viridis')
+     cs = m.pcolor(x,y,variable,vmin=vmin,vmax=vmax,cmap="RdBu_r")
 
    cbar = m.colorbar(cs, location='bottom')
    if variable_name=='ice_f':
