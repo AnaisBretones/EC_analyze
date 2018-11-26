@@ -17,6 +17,7 @@ import loading
 
 # WHAT SUBSET OF DATA ? \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+computer = 'home'
 scenario = 'RCP8'	# 'CO2' 'RCP8'
 ttype = 'monthly'	#'yearly', 'monthly'
 option = 'Uncoupled'	# Coupled, Uncoupled
@@ -43,7 +44,12 @@ elif scenario == 'RCP8':
 #var='Icef'
 var='salt'
 
-path = '/media/fig010/LACIE SHARE/EC_data/'+str(ttype) \
+if computer=='home':
+  pre_path = '/Volumes'
+else:
+  pre_path = '/media/fig010'
+
+path = str(pre_path)+'/LACIE SHARE/EC_data/'+str(ttype) \
        +str(first_year)+'-'+str(last_year)+'/'         \
        +str(var)+'_'+str(ttype)+'Means_'+str(scenario)+str(option)+'_'+str(region)+'.nc'
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -130,13 +136,13 @@ for i in range(0,np.size(IceF[:,0,0])):
    for j in range(0,np.size(IceF[0,:,0])):
       array_to_plotH[i,j] = np.nansum(IceF[i,j,index_y1h:index_y1h+10*12])/10
 
-'''
+
 title= str(y1h)+'-'+str(y2h)
 IceF[np.where(IceF==0)]=np.nan
 array_to_plotH = np.ma.masked_invalid(array_to_plotH)
-#ake_plot.plot_map(xr,yr,array_to_plotH,var,title,simu.output_fileH,vmin,vmax,colorbar)
+make_plot.plot_map(xr,yr,array_to_plotH,var,title,str(output_file)+'_present',vmin,vmax,colorbar)
 array_to_plotH[array_to_plotH==np.nan] = 0
-'''
+
 
 #array_to_plotF = np.nansum(IceExt[:,:,index_y1f:index_y1f+10*12],axis=2)
 array_to_plotF = np.zeros_like(IceF[:,:,0])

@@ -37,7 +37,8 @@ class _From1950to2100_():                                                       
      self.y2_compa = 2000
      self.output_file = 'map_'+str(self.y1)+'to'+str(self.y2)+'_'+str(option)+'_mod'   #//
      #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/2300/vita.nc'#_'+str(option)+'.nc'
-     self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/2300/2200_2300/vita.nc'#_'+str(option)+'.nc'
+     #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/2300/2200_2300/vita.nc'#_'+str(option)+'.nc'
+     self.path = '/Volumes/LACIE SHARE/EC_Earth/EC_data/2300/2200_2300/vita.nc'
      #self.path = '/media/fig010/LACIE SHARE/EC_Earth/EC_data/2300/2090/vita.nc'#_'+str(option)+'.nc'
 
 
