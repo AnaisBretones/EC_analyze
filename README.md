@@ -35,7 +35,9 @@ Create the folder **EC\_data** where you will store the data.
 To do so, you need to have access to nird, and more specifically to the project NS4659K. If it is not the
 case yet, you can apply [here](https://www.metacenter.no/user/application/form/norstore/).
 ```
-scp "username" @login.nird.sigma2.no:/nird/projects/NS4659K/anais/cdo_work/ "name_of_subset" /*.nc ~/Desktop/EC_Earth/EC_data
+scp "username" @login.nird.sigma2.no:/nird/projects/NS4659K/anais/cdo_work/ "name_of_subset" /*.nc ~/Desktop/EC_data
+
+scp "username" @login.nird.sigma2.no:/tos-project1/NS4659K/anais/cdo_work "name_of_subset" /*.nc ~/Desktop/EC_data
 ```
 
 
@@ -47,6 +49,9 @@ ssh "username" @login.nird.sigma2.no
 Open the folder **cdo\_work**:
 ```
  cd /nird/projects/NS4659K/anais/cdo_work
+ 
+ cd /tos-project1/NS4659K/anais/cdo_work
+
 ```
 The compressed data (one folder per year containing 5 files with montlhy values for different variables) are
 stored in **anais/EC\_data**. You can edit a new bash script, run it ($bash your\_script) and copy the resulting
